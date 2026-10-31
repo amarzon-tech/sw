@@ -1,507 +1,250 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Salt Whisperer</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Salt Whisperer">
+<meta name="theme-color" content="#0b1220">
+<meta name="description" content="Salt Whisperer: a quick game to learn which foods are high, moderate, or low in sodium. For people with kidney disease or high blood pressure.">
+<title>Salt Whisperer: Sodium Game</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <style>
-:root{
- --bgA:#0b1220;--bgB:#14244b;--card:#fff;--text:#0f172a;
- --high:#dc2626;--mod:#f59e0b;--low:#16a34a;--smart:#22c55e;
- --radius:26px;--shadow:0 18px 50px rgba(0,0,0,.35);
-}
-body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto;background:linear-gradient(135deg,var(--bgA),var(--bgB));color:#e5e7eb;overflow:hidden}
-.app{max-width:560px;margin:auto;height:100dvh;display:flex;flex-direction:column;padding:14px;gap:10px}
-header{display:flex;justify-content:space-between;align-items:flex-start}
-.logo{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,#60a5fa,#a78bfa);display:grid;place-items:center;font-weight:900;font-size:20px}
-h1{margin:0;font-size:20px}
-.sub{font-size:13px;opacity:.85}
-.hud{font-size:13px;text-align:right}
-.progress{height:12px;background:rgba(255,255,255,.15);border-radius:999px;overflow:hidden}
-.progress div{height:100%;width:0%;background:linear-gradient(90deg,#60a5fa,#a78bfa)}
-.stack{flex:1;position:relative}
+  :root{
+    --sat: env(safe-area-inset-top, 0px);
+    --sar: env(safe-area-inset-right, 0px);
+    --sab: env(safe-area-inset-bottom, 0px);
+    --sal: env(safe-area-inset-left, 0px);
+    --shadow:0 1.1rem 3.4rem rgba(0,0,0,.35);
+    --radius:1.6rem;
+    --card:#ffffff; --text:#0f172a; --muted:#475569;
+    --high:#b91c1c; --mod:#92400e; --low:#15803d;
+    --highBg:#fee2e2; --modBg:#fef3c7; --lowBg:#dcfce7;
+    --bgA:#0b1220; --bgB:#17305a; --accent1:#67e8f9; --accent2:#a78bfa;
+    --ink:#f1f5f9; --ink2:#dbe4f5;
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+  html{ font-size:100%; }
+  html, body { height:100%; margin:0; overflow:hidden; }
+  body{ font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; color:var(--ink);
+    background: linear-gradient(135deg, var(--bgA), var(--bgB)); transition: background 450ms ease; }
+  /* Safe area fix: opaque cover above the app so nothing can scroll under the status bar/notch,
+     and the scroll container starts below the safe-area padding. */
+  .safeCover{ position:fixed; top:0; left:0; right:0; height:var(--sat); background:var(--bgA); z-index:50; pointer-events:none; }
+  .shell{ position:fixed; inset:0; padding: var(--sat) var(--sar) var(--sab) var(--sal); display:flex; justify-content:center; overflow:hidden; }
+  .app{ width:min(32.5rem,100%); height:100%; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch;
+    display:flex; flex-direction:column; padding:.875rem .875rem 1rem; gap:.625rem; overscroll-behavior:contain; scroll-padding-top:1rem; }
+  [hidden]{ display:none !important; }
+  .screen{ display:flex; flex-direction:column; gap:.75rem; flex:1 0 auto; }
+  :focus-visible{ outline:3px solid #fbbf24; outline-offset:2px; }
+  h2[tabindex="-1"]:focus{ outline:none; }
+  .sr-only{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
 
-.card{
- position:absolute;inset:0;background:var(--card);color:var(--text);
- border-radius:var(--radius);box-shadow:var(--shadow);
- padding:22px;display:flex;flex-direction:column;justify-content:space-between;
- touch-action:none;
- will-change:transform;
- transform:translate3d(0,0,0);
- transition:transform 160ms ease;
- backface-visibility:hidden;
-}
-.card.dragging{transition:none}
+  header{ display:flex; justify-content:space-between; align-items:center; gap:.5rem; padding-top:.25rem; flex:none; }
+  .brand{ display:flex; gap:.6rem; align-items:center; min-width:0; }
+  .logo{ flex:none; width:2.5rem; height:2.5rem; border-radius:.85rem; background:linear-gradient(135deg,var(--accent1),var(--accent2)); display:grid; place-items:center; font-size:1.4rem; }
+  .title h1{ margin:0; font-size:1.125rem; white-space:nowrap; }
+  .title p{ margin:.1rem 0 0; font-size:.78rem; color:var(--ink2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .pillDark{ display:inline-flex; align-items:center; gap:.4rem; padding:.4rem .6rem; border-radius:999px; border:1px solid rgba(203,213,225,.3); background:rgba(2,6,23,.45); color:var(--ink); font-size:.78rem; white-space:nowrap; }
+  .pillBtn{ cursor:pointer; font:inherit; font-size:.78rem; font-weight:700; }
 
-.visual{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:12px}
-.emoji{font-size:84px;line-height:1}
-.name{font-size:30px;font-weight:900}
-.prompt{font-size:16px;color:#475569}
+  .topBars{ display:flex; gap:.5rem; align-items:center; flex:none; position:sticky; top:0; z-index:20; background:var(--bgA); padding:.3rem 0; margin:-.3rem 0 0; }
+  .progress{ flex:1; height:.625rem; background:rgba(255,255,255,.15); border-radius:999px; overflow:hidden; }
+  .progress > div{ height:100%; width:0%; background:linear-gradient(90deg,var(--accent1),var(--accent2)); border-radius:999px; transition:width .25s ease; }
+  .progress.timer > div{ transition:width .1s linear; }
+  .iconBtn{ flex:none; background:rgba(2,6,23,.45); color:var(--ink); border:1px solid rgba(203,213,225,.3); border-radius:999px; padding:.4rem .7rem; font-size:.8rem; font-weight:700; }
+  .comboChip{ display:inline-flex; align-items:center; gap:.25rem; padding:.3rem .6rem; border-radius:999px; background:rgba(2,6,23,.55); border:1px solid rgba(203,213,225,.3); font-weight:900; font-size:.85rem; white-space:nowrap; }
+  .comboChip.hot{ border-color:#fbbf24; box-shadow:0 0 .8rem rgba(251,191,36,.55); }
+  .comboChip.max{ border-color:#67e8f9; box-shadow:0 0 1.2rem rgba(103,232,249,.9); }
+  #shaker{ display:inline-block; font-size:1.25rem; transform-origin:50% 90%; }
+  .shake1{ animation:shk1 .4s ease; } .shake2{ animation:shk2 .45s ease; } .shake3{ animation:shk3 .5s ease; } .shake4{ animation:shk4 .55s ease; } .shake5{ animation:shk5 .6s ease; }
+  @keyframes shk1{ 25%{transform:rotate(-14deg)} 75%{transform:rotate(12deg)} }
+  @keyframes shk2{ 15%{transform:rotate(-22deg) translateY(-2px)} 45%{transform:rotate(20deg)} 75%{transform:rotate(-14deg)} }
+  @keyframes shk3{ 12%{transform:rotate(-28deg) translateY(-3px) scale(1.15)} 36%{transform:rotate(26deg)} 60%{transform:rotate(-20deg)} 82%{transform:rotate(12deg)} }
+  @keyframes shk4{ 10%{transform:rotate(-34deg) translateY(-4px) scale(1.25)} 30%{transform:rotate(32deg)} 50%{transform:rotate(-26deg)} 70%{transform:rotate(18deg)} 90%{transform:rotate(-8deg)} }
+  @keyframes shk5{ 8%{transform:rotate(-40deg) translateY(-5px) scale(1.4)} 24%{transform:rotate(38deg)} 40%{transform:rotate(-32deg)} 56%{transform:rotate(26deg)} 72%{transform:rotate(-18deg)} 88%{transform:rotate(8deg)} }
 
-.badges{display:flex;justify-content:space-between}
-.badge{font-size:12px;font-weight:900;padding:6px 12px;border-radius:999px}
-.smart{background:rgba(34,197,94,.15);color:#065f46}
-.modeTag{background:rgba(96,165,250,.18);color:#1e40af}
+  .stack{ position:relative; flex:1; min-height:19rem; }
+  .card{ position:absolute; inset:0; background:var(--card); color:var(--text); border-radius:var(--radius); box-shadow:var(--shadow);
+    padding:1rem; display:flex; flex-direction:column; gap:.5rem; transition:transform .25s ease, opacity .25s ease, box-shadow .3s ease;
+    touch-action:none; overflow:auto; user-select:none; -webkit-user-select:none; }
+  .card.revealed{ touch-action:auto; cursor:pointer; }
+  .card.glowGood{ box-shadow:0 0 0 .2rem #22c55e, 0 0 2rem rgba(34,197,94,.65); }
+  .card.glowBad{ box-shadow:0 0 0 .2rem #f87171, 0 0 1.6rem rgba(248,113,113,.5); }
+  .badgeRow{ display:flex; justify-content:space-between; align-items:center; gap:.6rem; }
+  .pill{ font-size:.72rem; padding:.35rem .6rem; border-radius:999px; background:#e0e7ff; color:#312e81; font-weight:800; }
+  .pill2{ background:#e2e8f0; color:#0f172a; }
+  .content{ display:flex; flex-direction:column; align-items:center; gap:.4rem; }
+  .emojiTile{ width:6.5rem; height:6.5rem; border-radius:1.5rem; background:#f1f5f9; box-shadow:0 .75rem 1.6rem rgba(15,23,42,.15); display:grid; place-items:center; font-size:3.4rem; }
+  .name{ font-size:1.4rem; font-weight:900; letter-spacing:-.02em; text-align:center; }
+  .serving{ font-size:.9rem; color:var(--muted); font-weight:700; text-align:center; }
+  .prompt{ font-size:.9rem; color:var(--muted); text-align:center; max-width:23rem; }
+  .mealList{ width:100%; display:flex; flex-direction:column; gap:.35rem; }
+  .mealItem{ background:#f1f5f9; border-radius:.85rem; padding:.5rem .75rem; font-size:.9rem; display:flex; justify-content:space-between; gap:.6rem; align-items:center; }
+  .tag{ font-size:.75rem; font-weight:800; padding:.1rem .45rem; border-radius:999px; white-space:nowrap; }
+  .tag.high{ background:var(--highBg); color:var(--high); } .tag.mod{ background:var(--modBg); color:var(--mod); } .tag.low{ background:var(--lowBg); color:var(--low); }
+  .compare{ display:grid; grid-template-columns:1fr 1fr; gap:.6rem; width:100%; }
+  .opt{ background:#f1f5f9; border-radius:1rem; padding:.75rem .5rem; text-align:center; border:3px solid transparent; }
+  .opt .e{ font-size:2.4rem; } .opt .n{ font-weight:800; font-size:.92rem; } .opt .s{ font-size:.78rem; color:var(--muted); }
+  .opt .mg{ font-size:.85rem; font-weight:800; margin-top:.3rem; }
+  .opt.win{ border-color:var(--low); background:var(--lowBg); }
+  .opt .letter{ font-size:.75rem; font-weight:900; color:#312e81; }
+  .verdict{ border-radius:1rem; padding:.55rem .8rem; text-align:center; font-weight:900; font-size:1.05rem; }
+  .verdict.high{ background:var(--highBg); color:var(--high); } .verdict.mod{ background:var(--modBg); color:var(--mod); } .verdict.low{ background:var(--lowBg); color:var(--low); }
+  .verdict small{ display:block; font-weight:700; font-size:.82rem; color:var(--text); margin-top:.15rem; }
+  .hint{ font-size:.78rem; color:var(--muted); text-align:center; margin-top:auto; }
+  .overlay{ position:absolute; top:.85rem; padding:.55rem .85rem; border-radius:1rem; font-weight:900; opacity:0; pointer-events:none; }
+  .overlay.left{ left:.85rem; background:var(--highBg); color:var(--high); border:2px solid var(--high); }
+  .overlay.up{ left:50%; transform:translateX(-50%); background:var(--modBg); color:var(--mod); border:2px solid var(--mod); }
+  .overlay.right{ right:.85rem; background:var(--lowBg); color:var(--low); border:2px solid var(--low); }
 
-.parts{margin-top:10px;width:100%}
-.part{background:#f1f5f9;border-radius:16px;padding:10px 14px;margin-bottom:8px;font-size:15px;text-align:center}
+  .controls{ display:flex; gap:.6rem; flex:none; }
+  button{ font:inherit; cursor:pointer; }
+  .controls button, .bigBtn{ flex:1; border:0; border-radius:999px; padding:.8rem .5rem; font-weight:900; font-size:.9rem; line-height:1.2; transition:transform .08s ease; }
+  .controls button:active, .bigBtn:active{ transform:scale(.98); }
+  .controls button small{ display:block; font-weight:700; font-size:.72rem; opacity:.95; }
+  .controls button:disabled{ opacity:.45; cursor:default; }
+  .btnHigh{ background:var(--highBg); color:var(--high); } .btnMod{ background:var(--modBg); color:var(--mod); } .btnLow{ background:var(--lowBg); color:var(--low); }
+  .btnA{ background:#e0e7ff; color:#312e81; }
+  .bigBtn{ background:linear-gradient(135deg,var(--accent1),var(--accent2)); color:#0b1220; padding:.95rem; font-size:1rem; }
+  .bigBtn.secondary{ background:rgba(2,6,23,.45); color:var(--ink); border:1px solid rgba(203,213,225,.35); }
+  .bigBtn small{ display:block; font-weight:700; font-size:.75rem; opacity:.85; }
 
-.compareGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;margin-top:10px}
-.compareBox{background:#f8fafc;border:2px solid rgba(148,163,184,.4);border-radius:18px;padding:12px;text-align:center}
-.compareTitle{font-weight:900;font-size:16px}
-.compareSub{font-size:12px;color:#475569;margin-top:4px}
+  .toast{ background:rgba(2,6,23,.7); border:2px solid rgba(203,213,225,.3); padding:.75rem .85rem; border-radius:1.1rem; font-size:.88rem; line-height:1.4; flex:none; max-height:40vh; overflow:auto; }
+  .toast.good{ border-color:#22c55e; } .toast.bad{ border-color:#f87171; }
+  .toast .swap{ margin-top:.3rem; color:#bbf7d0; }
+  .toast .coach{ margin-top:.35rem; color:var(--ink2); font-size:.82rem; font-style:italic; }
+  .toast .row{ display:flex; gap:.6rem; align-items:center; justify-content:space-between; margin-top:.6rem; }
+  .toast .tapnote{ font-size:.75rem; color:var(--ink2); }
+  .nextBtn{ border:0; border-radius:999px; padding:.65rem 1.4rem; font-weight:900; background:#f8fafc; color:#0b1220; }
+  .footer{ font-size:.72rem; color:var(--ink2); text-align:center; flex:none; padding-top:.25rem; }
+  .footer a, .panelText a{ color:#bfdbfe; }
+  .draft{ display:inline-block; margin-top:.2rem; padding:.1rem .5rem; border-radius:999px; background:rgba(251,191,36,.18); color:#fde68a; font-weight:700; }
 
-.controls{display:flex;gap:10px}
-button{flex:1;border:0;border-radius:999px;padding:16px;font-weight:900;font-size:15px}
-.high{background:rgba(220,38,38,.15);color:#fecaca}
-.mod{background:rgba(245,158,11,.15);color:#fde68a}
-.low{background:rgba(22,163,74,.15);color:#bbf7d0}
+  .panel{ border-radius:1.4rem; padding:1rem; color:var(--ink); border:1px solid rgba(203,213,225,.25); background:rgba(2,6,23,.55); box-shadow:var(--shadow); }
+  .panel h2{ margin:0 0 .4rem; font-size:1.25rem; }
+  .panel h3{ margin:.8rem 0 .3rem; font-size:1rem; }
+  .panel p, .panel li{ font-size:.9rem; line-height:1.45; color:var(--ink2); }
+  .panel ul{ padding-left:1.1rem; margin:.3rem 0; }
+  .big{ font-size:2.5rem; font-weight:900; margin:.3rem 0; }
+  .btnCol{ display:flex; flex-direction:column; gap:.6rem; }
+  .btnRow{ display:flex; gap:.6rem; }
+  .modeGrid{ display:grid; grid-template-columns:1fr 1fr; gap:.6rem; }
+  .modeBtn{ border:1px solid rgba(203,213,225,.3); background:rgba(2,6,23,.5); color:var(--ink); border-radius:1.2rem; padding:.8rem .6rem; text-align:left; font-weight:900; font-size:.95rem; display:flex; flex-direction:column; gap:.15rem; }
+  .modeBtn small{ font-weight:600; font-size:.74rem; color:var(--ink2); }
+  .modeBtn .me{ font-size:1.6rem; }
+  .dailyBtn{ border:0; background:linear-gradient(135deg,#22c55e,#67e8f9); color:#06231a; border-radius:1.3rem; padding:1rem; text-align:left; font-weight:900; font-size:1.05rem; display:flex; gap:.7rem; align-items:center; }
+  .dailyBtn small{ display:block; font-weight:700; font-size:.78rem; }
+  .dailyBtn .me{ font-size:2rem; }
+  .toggles{ display:flex; gap:.6rem; flex-wrap:wrap; justify-content:center; }
+  .toggle{ background:rgba(2,6,23,.45); color:var(--ink); border:1px solid rgba(203,213,225,.35); border-radius:999px; padding:.5rem .9rem; font-weight:700; font-size:.85rem; }
+  .toggle[aria-pressed="false"]{ opacity:.75; text-decoration:line-through; }
+  .toggle.sel{ background:var(--ink); color:#0b1220; }
+  .statGrid{ display:grid; grid-template-columns:1fr 1fr; gap:.5rem; }
+  .stat{ background:rgba(255,255,255,.08); border-radius:.9rem; padding:.6rem; text-align:center; }
+  .stat b{ display:block; font-size:1.3rem; color:#fff; } .stat span{ font-size:.78rem; color:var(--ink2); }
+  .levelRow{ display:flex; justify-content:space-between; gap:.5rem; padding:.35rem 0; border-bottom:1px solid rgba(203,213,225,.15); font-size:.9rem; }
+  .xpBar{ height:.55rem; border-radius:999px; background:rgba(255,255,255,.15); overflow:hidden; margin-top:.35rem; }
+  .xpBar > div{ height:100%; background:linear-gradient(90deg,#fbbf24,#fb923c); border-radius:999px; transition:width .9s ease; }
+  .badgeGrid{ display:grid; grid-template-columns:repeat(4,1fr); gap:.4rem; }
+  .bdg{ background:rgba(255,255,255,.07); border-radius:.9rem; padding:.45rem .2rem; text-align:center; font-size:.62rem; color:var(--ink2); line-height:1.15; }
+  .bdg .be{ font-size:1.5rem; display:block; filter:grayscale(1); opacity:.4; }
+  .bdg.got{ background:rgba(251,191,36,.15); color:#fff; } .bdg.got .be{ filter:none; opacity:1; }
+  .modal{ position:fixed; inset:0; display:none; align-items:center; justify-content:center; padding:calc(1rem + var(--sat)) 1rem calc(1rem + var(--sab)); background:rgba(0,0,0,.6); z-index:60; overflow:auto; }
+  .modal .panel{ width:min(32.5rem,100%); background:#111a33; text-align:center; max-height:100%; overflow:auto; }
+  .rankLine{ display:flex; justify-content:center; align-items:center; gap:.6rem; margin:.5rem 0; flex-wrap:wrap; }
+  .newBadge{ display:inline-flex; gap:.35rem; align-items:center; padding:.3rem .6rem; margin:.15rem; border-radius:999px; background:rgba(251,191,36,.2); border:1px solid #fbbf24; font-weight:800; font-size:.8rem; }
+  .record{ color:#fde68a; font-weight:900; animation:pop .6s ease; }
+  @keyframes pop{ from{transform:scale(.6);opacity:0} 60%{transform:scale(1.15)} to{transform:scale(1);opacity:1} }
+  .fx{ position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:70; }
+  .crys{ position:absolute; width:.55rem; height:.55rem; background:linear-gradient(135deg,#fff,#bfdbfe); clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%); box-shadow:0 0 .4rem #fff; will-change:transform,opacity; }
+  .floatTxt{ position:absolute; font-weight:900; font-size:1.3rem; color:#fde68a; text-shadow:0 0 .6rem rgba(0,0,0,.6); will-change:transform,opacity; }
+  .banner{ position:absolute; left:50%; top:22%; transform:translateX(-50%); font-weight:900; font-size:1.6rem; padding:.4rem 1rem; border-radius:999px; background:rgba(2,6,23,.75); border:2px solid #fbbf24; color:#fde68a; white-space:nowrap; }
+  .conf{ position:absolute; font-size:1.5rem; animation:fall 900ms ease-out forwards; }
+  @keyframes fall{ from{ transform:translateY(-20px) rotate(0); opacity:0; } 20%{ opacity:1; } to{ transform:translateY(260px) rotate(220deg); opacity:0; } }
 
-.toast{background:rgba(2,6,23,.72);border-radius:18px;padding:16px;font-size:14px;display:none}
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center}
-.panel{background:rgba(15,23,42,.95);padding:24px;border-radius:26px;max-width:440px;text-align:center}
-.panel button{margin-top:10px;padding:10px 18px}
-
-.footerRow{display:flex;justify-content:space-between;align-items:center;margin-top:2px}
-.footer{font-size:11px;opacity:.75}
-.gear{border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.06);color:#e5e7eb;border-radius:999px;padding:6px 10px;font-weight:900;cursor:pointer}
-.small{font-size:12px;opacity:.85}
-.kv{display:flex;justify-content:space-between;gap:12px;margin-top:6px;text-align:left}
-.kv div{flex:1;background:rgba(255,255,255,.06);border-radius:14px;padding:10px}
-.kv b{display:block;margin-bottom:4px}
+  /* Daily Budget meter */
+  .meterWrap{ position:relative; padding:.2rem 0 1.1rem; }
+  .meter{ position:relative; height:1.6rem; border-radius:999px; background:rgba(255,255,255,.14); overflow:visible; }
+  .meterFill{ position:absolute; left:0; top:0; bottom:0; width:0; border-radius:999px; background:linear-gradient(90deg,#22c55e,#86efac); transition:width .9s cubic-bezier(.2,.9,.2,1), background .4s ease, box-shadow .4s ease; }
+  .meter.under .meterFill{ box-shadow:0 0 1.2rem rgba(34,197,94,.9), 0 0 .4rem #bbf7d0 inset; animation:glowPulse 1.8s ease-in-out infinite; }
+  .meter.warn .meterFill{ background:linear-gradient(90deg,#f59e0b,#fde68a); box-shadow:0 0 1rem rgba(245,158,11,.7); }
+  .meter.over .meterFill{ background:linear-gradient(90deg,#ef4444,#fca5a5); box-shadow:0 0 1rem rgba(239,68,68,.7); }
+  @keyframes glowPulse{ 50%{ box-shadow:0 0 1.9rem rgba(34,197,94,1), 0 0 .6rem #dcfce7 inset; } }
+  .meterMark{ position:absolute; top:-.3rem; bottom:-.3rem; width:3px; background:#fff; border-radius:2px; }
+  .meterMark span{ position:absolute; top:100%; left:50%; transform:translateX(-50%); font-size:.66rem; white-space:nowrap; margin-top:.15rem; color:var(--ink2); }
+  .meterTxt{ display:flex; justify-content:space-between; font-size:.85rem; margin-top:.2rem; }
+  .flatCard{ background:var(--card); color:var(--text); border-radius:var(--radius); box-shadow:var(--shadow); padding:1rem; display:flex; flex-direction:column; gap:.6rem; transition:box-shadow .3s ease; }
+  .flatCard.glowGood{ box-shadow:0 0 0 .2rem #22c55e, 0 0 2rem rgba(34,197,94,.65); } .flatCard.glowBad{ box-shadow:0 0 0 .2rem #f87171, 0 0 1.6rem rgba(248,113,113,.5); }
+  .optGrid{ display:flex; flex-direction:column; gap:.55rem; }
+  .optCard{ display:flex; gap:.7rem; align-items:center; text-align:left; background:#fff; color:var(--text); border:3px solid transparent; border-radius:1.2rem; padding:.7rem .8rem; font-weight:800; box-shadow:0 .5rem 1.4rem rgba(0,0,0,.25); width:100%; }
+  .optCard .oe{ font-size:2.2rem; flex:none; }
+  .optCard small{ display:block; font-weight:600; color:var(--muted); font-size:.78rem; }
+  .optCard .omg{ margin-left:auto; text-align:right; font-weight:900; font-size:.95rem; white-space:nowrap; }
+  .optCard.chosen{ border-color:#0ea5e9; } .optCard.dim{ opacity:.75; }
+  .optCard:disabled{ cursor:default; }
+  .partBtn{ display:flex; align-items:center; gap:.6rem; width:100%; text-align:left; background:#f1f5f9; border:3px solid transparent; border-radius:1rem; padding:.7rem .8rem; font-weight:800; color:var(--text); }
+  .partBtn .pbar{ flex:1; height:.5rem; border-radius:999px; background:#e2e8f0; overflow:hidden; display:none; }
+  .partBtn .pbar i{ display:block; height:100%; background:#ef4444; width:0; transition:width .7s ease; }
+  .partBtn .pmg{ font-size:.85rem; display:none; white-space:nowrap; }
+  .partBtn.top{ border-color:#ef4444; background:#fee2e2; } .partBtn.mine{ border-color:#0ea5e9; }
+  .sliderBox{ width:100%; } .sliderBox input[type=range]{ width:100%; height:2rem; accent-color:#0ea5e9; }
+  .gBig{ font-size:2rem; font-weight:900; text-align:center; }
+  .gSub{ text-align:center; font-size:.85rem; color:var(--muted); }
+  .twoBar{ width:100%; display:flex; flex-direction:column; gap:.35rem; margin-top:.3rem; }
+  .twoBar div{ display:flex; align-items:center; gap:.5rem; font-size:.8rem; font-weight:800; }
+  .twoBar i{ display:block; height:.7rem; border-radius:999px; background:#0ea5e9; width:0; transition:width .7s ease; } .twoBar i.act{ background:#ef4444; }
+  @media (prefers-reduced-motion: reduce){ *{ transition:none !important; animation:none !important; } .fx,.confetti{ display:none; } }
 </style>
 </head>
 <body>
-
-<div class="app">
-<header>
- <div style="display:flex;gap:10px">
-  <div class="logo">🧂</div>
-  <div>
-    <h1>Salt Whisperer</h1>
-    <div class="sub">Difficulty ramps each level • Compare Mode starts at Level 3</div>
-  </div>
- </div>
- <div class="hud">
-  Level <b id="level">1</b>/5<br/>
-  <span id="rank">Rookie</span><br/>
-  Card <b id="cardN">1</b>/10
- </div>
-</header>
-
-<div class="progress"><div id="prog"></div></div>
-<div class="stack" id="stack"></div>
-
-<div class="controls">
- <button class="high" id="btnL" onclick="answer('high')">⬅ High</button>
- <button class="mod" id="btnU" onclick="answer('mod')">⬆ Moderate</button>
- <button class="low" id="btnR" onclick="answer('low')">Low ➡</button>
-</div>
-
-<div class="toast" id="toast"></div>
-<div class="footerRow">
-  <div class="footer">Educational only • Brands/recipes vary</div>
-  <div class="gear" onclick="openSettings()">⚙️</div>
-</div>
-</div>
-
-<div class="modal" id="modal"><div class="panel" id="panel"></div></div>
-
-<script>
-// ================= SETTINGS =================
-const FEEDBACK_MS=3000, PASS=7;
-const RANKS=["Rookie","Whisperer","Specialist","Master","Guru"];
-const DIFF={1:{compare:0},2:{compare:0},3:{compare:1},4:{compare:1},5:{compare:2}};
-let level=1, idx=0, correct=0, busy=false;
-
-// Audio/Haptics default ON (with realistic platform caveats)
-let soundOn=true, hapticOn=true;
-let audioCtx=null;
-
-// Ensure audio context is resumed after the first user gesture
-function ensureAudio(){
-  if(!soundOn) return;
-  try{
-    audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)();
-    if(audioCtx.state==="suspended") audioCtx.resume();
-  }catch(e){}
-}
-
-function beep(type){
-  if(!soundOn) return;
-  ensureAudio();
-  try{
-    const o=audioCtx.createOscillator();
-    const g=audioCtx.createGain();
-    o.type="sine";
-    o.frequency.value = type==="good" ? 660 : 220;
-    g.gain.value = 0.0001;
-    o.connect(g); g.connect(audioCtx.destination);
-    o.start();
-    const t=audioCtx.currentTime;
-    g.gain.exponentialRampToValueAtTime(0.12, t+0.01);
-    g.gain.exponentialRampToValueAtTime(0.0001, t+0.16);
-    o.stop(t+0.18);
-  }catch(e){}
-}
-
-function haptic(ms=20){
-  if(!hapticOn) return;
-  // iOS Safari doesn't support navigator.vibrate; Android Chrome generally does (https required)
-  if(navigator.vibrate) navigator.vibrate(ms);
-}
-
-// Prime audio on first interaction anywhere
-window.addEventListener("pointerdown", ensureAudio, {once:true});
-
-// ================= DATA =================
-let usedFood=new Set(), usedMeal=new Set(), usedCompare=new Set();
-
-// foods (same as v10)
-const FOODS=[
- {id:"eggs",n:"Eggs",e:"🍳",c:"low",t:"Naturally low sodium."},
- {id:"oat",n:"Oatmeal (plain)",e:"🥣",c:"low",t:"Plain oats are sodium-friendly."},
- {id:"banana",n:"Banana",e:"🍌",c:"low",t:"Fresh fruit is naturally low sodium."},
- {id:"apple",n:"Apple",e:"🍎",c:"low",t:"Fresh fruit is naturally low sodium."},
- {id:"bread",n:"Bread",e:"🍞",c:"mod",t:"Hidden sodium in dough."},
- {id:"bagel",n:"Bagel",e:"🥯",c:"high",t:"Dense breads carry more salt."},
- {id:"tortilla",n:"Tortilla",e:"🌯",c:"mod",t:"Tortillas often have surprising sodium."},
- {id:"rice",n:"Rice",e:"🍚",c:"low",t:"Plain rice is low sodium."},
- {id:"pasta",n:"Pasta (plain)",e:"🍝",c:"low",t:"Plain pasta is low sodium (sauce matters)."},
- {id:"deli",n:"Deli Meat",e:"🥪",c:"high",t:"Processed meats are salty."},
- {id:"bacon",n:"Bacon",e:"🥓",c:"high",t:"Cured meats are sodium-heavy."},
- {id:"sausage",n:"Sausage",e:"🌭",c:"high",t:"Processed meats usually pack sodium."},
- {id:"soup",n:"Canned Soup",e:"🥫",c:"high",t:"Liquid foods can hide lots of salt."},
- {id:"broth",n:"Broth/Stock",e:"🍲",c:"high",t:"Broths can be extremely salty unless low-sodium."},
- {id:"lowbroth",n:"Low-sodium Broth",e:"🍲",c:"mod",t:"Better—still check the label."},
- {id:"cheese",n:"Cheese",e:"🧀",c:"mod",t:"Salt is part of cheese."},
- {id:"chips",n:"Chips",e:"🥔",c:"high",t:"Engineered for salt cravings."},
- {id:"pretzels",n:"Pretzels",e:"🥨",c:"high",t:"Salted snack—often high sodium."},
- {id:"nuts_unsalted",n:"Nuts (unsalted)",e:"🥜",c:"low",t:"Unsalted nuts are a smart snack."},
- {id:"nuts_salted",n:"Nuts (salted)",e:"🥜",c:"mod",t:"Salted versions add sodium quickly."},
- {id:"veg",n:"Vegetables (fresh)",e:"🥦",c:"low",t:"Fresh veggies are naturally low sodium."},
- {id:"pickles",n:"Pickles",e:"🥒",c:"high",t:"Brined foods are sodium bombs."},
- {id:"soy",n:"Soy Sauce",e:"🥢",c:"high",t:"Concentrated sodium—use sparingly."},
- {id:"lowssoy",n:"Low-sodium Soy Sauce",e:"🥢",c:"mod",t:"Lower, but still salty."},
- {id:"ketchup",n:"Ketchup",e:"🍅",c:"mod",t:"Condiments add up fast."},
- {id:"bbq",n:"BBQ Sauce",e:"🍖",c:"mod",t:"Sauces sneak in sodium."},
- {id:"salad_dress",n:"Salad Dressing",e:"🥗",c:"mod",t:"Dressings can be salty—portion matters."},
- {id:"frozen_dinner",n:"Frozen Dinner",e:"🍱",c:"high",t:"Often designed with lots of sodium."},
- {id:"ramen_pack",n:"Ramen Packet",e:"🍜",c:"high",t:"Seasoning packet is the salt."},
- {id:"cottage",n:"Cottage Cheese",e:"🥛",c:"mod",t:"Often higher sodium than expected."},
- {id:"yogurt",n:"Yogurt (plain)",e:"🥛",c:"low",t:"Plain yogurt is usually low sodium."},
- {id:"breaded_chx",n:"Breaded Chicken",e:"🍗",c:"mod",t:"Breading adds sodium."},
- {id:"rotisserie",n:"Rotisserie Chicken",e:"🍗",c:"high",t:"Often injected with salty brine."},
- {id:"tuna_can",n:"Canned Tuna (regular)",e:"🐟",c:"mod",t:"Canned proteins vary—check label."},
- {id:"tuna_low",n:"Canned Tuna (low sodium)",e:"🐟",c:"low",t:"Low-sodium versions are a smart swap."},
- {id:"beans_can",n:"Canned Beans (regular)",e:"🫘",c:"mod",t:"Rinse to reduce sodium."},
- {id:"beans_nsa",n:"Beans (No-salt-added)",e:"🫘",c:"low",t:"No-salt-added is a high-value swap."},
- {id:"tomato_can",n:"Canned Tomatoes (regular)",e:"🍅",c:"mod",t:"Many canned veggies have added salt."},
- {id:"tomato_nsa",n:"Tomatoes (No-salt-added)",e:"🍅",c:"low",t:"No-salt-added is the win."},
-];
-
-const MEALS=[ /* same list as v10, unchanged */ 
- {id:"am_chx_plate",n:"Grilled Chicken Plate",e:"🍗",c:"low",s:true,p:["Chicken","Rice","Vegetables"],t:"Repeatable low-sodium dinner."},
- {id:"am_burger_combo",n:"Fast-food Burger Combo",e:"🍔",c:"high",p:["Burger","Fries","Sauce"],t:"Stacked salt from multiple items."},
- {id:"am_home_burger",n:"Homemade Burger + Oven Fries",e:"🍔",c:"mod",s:true,p:["Burger","Oven fries"],t:"Home prep lowers sodium ceiling."},
- {id:"am_pizza",n:"Pizza Night",e:"🍕",c:"high",p:["Pizza","Extra cheese"],t:"Crust, sauce, cheese = sodium stack."},
- {id:"am_breakfast",n:"Breakfast-for-Dinner",e:"🍳",c:"mod",s:true,p:["Eggs","Toast","Fruit"],t:"Solid meal—watch the bread."},
- {id:"am_soup_sand",n:"Soup + Deli Sandwich",e:"🥪",c:"high",p:["Soup","Deli sandwich"],t:"Liquid + deli meats stack salt."},
- {id:"am_grill_fish",n:"Baked Fish + Potatoes",e:"🐟",c:"low",s:true,p:["Fish","Potatoes","Salad"],t:"Simple cooking keeps sodium predictable."},
- {id:"am_fried_chx",n:"Fried Chicken Dinner",e:"🍗",c:"high",p:["Fried chicken","Sides"],t:"Breading + sides raise sodium."},
- {id:"am_chili",n:"Chili (Canned)",e:"🥣",c:"high",p:["Canned chili"],t:"Canned meals are usually high sodium."},
- {id:"am_chili_home",n:"Chili (Home, low-salt)",e:"🥣",c:"mod",s:true,p:["No-salt-added beans","Spices"],t:"No-salt-added beans are a power move."},
- {id:"am_mac",n:"Mac & Cheese (Boxed)",e:"🧀",c:"high",p:["Boxed pasta","Cheese mix"],t:"Packets carry sodium."},
- {id:"as_teriyaki",n:"Teriyaki Bowl",e:"🍜",c:"high",p:["Chicken","Sauce","Rice"],t:"Sauce is the main sodium source."},
- {id:"as_stirfry_ls",n:"Stir Fry (Light Sauce)",e:"🥦",c:"mod",s:true,p:["Veg","Protein","Light sauce"],t:"Light sauce = big sodium savings."},
- {id:"as_pho_lessbroth",n:"Pho (Less Broth)",e:"🍜",c:"mod",s:true,p:["Noodles","Herbs","Less broth"],t:"Broth control makes this workable."},
- {id:"as_ramen_full",n:"Ramen (Full Broth)",e:"🍜",c:"high",p:["Noodles","Broth","Seasoning"],t:"Most sodium is in broth/packet."},
- {id:"as_sushi",n:"Sushi + Soy Sauce",e:"🍣",c:"mod",p:["Sushi","Soy sauce"],t:"Soy sauce is concentrated sodium."},
- {id:"as_sushi_lows",n:"Sushi + Low-sodium Soy",e:"🍣",c:"mod",s:true,p:["Sushi","Low-sodium soy"],t:"Better—still use lightly."},
- {id:"as_padthai",n:"Pad Thai (Restaurant)",e:"🍜",c:"high",p:["Noodles","Sauce"],t:"Restaurant sauces are salty."},
- {id:"as_rice_bowl",n:"Rice Bowl (Home)",e:"🍚",c:"low",s:true,p:["Rice","Protein","Veg"],t:"Home bowls keep sodium controllable."},
- {id:"as_miso",n:"Miso Soup",e:"🍲",c:"high",p:["Miso broth"],t:"Miso is salty by design."},
- {id:"as_bibimbap",n:"Bibimbap (Restaurant)",e:"🍚",c:"mod",p:["Rice","Veg","Sauce"],t:"Sauce drives sodium."},
- {id:"as_friedrice",n:"Fried Rice (Takeout)",e:"🍚",c:"high",p:["Soy sauce","Oil"],t:"Soy sauce drives sodium."},
- {id:"in_dal_rice",n:"Dal + Rice (Home)",e:"🥣",c:"low",s:true,p:["Dal","Rice","Yogurt"],t:"Spices give flavor without salt."},
- {id:"in_butterchx",n:"Butter Chicken + Naan",e:"🍛",c:"high",p:["Sauce","Naan"],t:"Restaurant sauces add salt."},
- {id:"in_chana",n:"Chana Masala (Home)",e:"🍲",c:"mod",s:true,p:["Chana","Spices"],t:"Salt varies—home cooking helps."},
- {id:"in_biryani",n:"Biryani (Restaurant)",e:"🍛",c:"mod",p:["Rice","Spices"],t:"Often moderate—portion matters."},
- {id:"in_idli",n:"Idli + Sambar",e:"🥟",c:"mod",p:["Idli","Sambar"],t:"Depends on sambar salt—recipe matters."},
- {id:"in_upma",n:"Upma (Home)",e:"🥣",c:"low",s:true,p:["Semolina","Veg"],t:"Home prep keeps sodium low."},
- {id:"in_tikka",n:"Chicken Tikka (Restaurant)",e:"🍢",c:"mod",p:["Chicken","Spices"],t:"Often moderate—watch sauces/sides."},
- {id:"in_papad",n:"Papad + Pickles",e:"🥔",c:"high",p:["Papad","Pickles"],t:"Pickles are high sodium."},
- {id:"in_samosa",n:"Samosa Plate",e:"🥟",c:"high",p:["Fried snack","Chutney"],t:"Fried + chutney = sodium stack."},
- {id:"in_khichdi",n:"Khichdi (Home)",e:"🥣",c:"low",s:true,p:["Lentils","Rice","Spices"],t:"Comfort food that can stay low sodium."},
- {id:"md_bowl",n:"Mediterranean Bowl",e:"🥗",c:"mod",s:true,p:["Chicken","Veg","Tzatziki"],t:"Sauce on side helps a lot."},
- {id:"md_gyro",n:"Gyro Plate",e:"🥙",c:"high",p:["Meat","Sauce"],t:"Processed meat adds sodium."},
- {id:"md_fish_plate",n:"Grilled Fish Plate",e:"🐟",c:"low",s:true,p:["Fish","Potatoes","Salad"],t:"Simple prep keeps sodium low."},
- {id:"md_hummus_pita",n:"Hummus + Pita",e:"🫓",c:"mod",p:["Hummus","Bread"],t:"Bread + dip can add up."},
- {id:"md_greek_salad",n:"Greek Salad (Restaurant)",e:"🥗",c:"mod",p:["Feta","Olives","Dressing"],t:"Feta/olives add sodium."},
- {id:"md_greek_salad_home",n:"Greek Salad (Home, lite feta)",e:"🥗",c:"low",s:true,p:["Veg","Lite feta","Oil/lemon"],t:"Home tweaks = big sodium win."},
- {id:"md_shakshuka",n:"Shakshuka (Home)",e:"🍳",c:"low",s:true,p:["Eggs","Tomato","Spices"],t:"Flavor without heavy sodium."},
- {id:"md_olives",n:"Olives + Cheese Plate",e:"🫒",c:"high",p:["Olives","Cheese"],t:"Brined + salted foods stack."},
- {id:"md_falafel",n:"Falafel Wrap",e:"🌯",c:"mod",p:["Falafel","Sauce"],t:"Portion and sauce matter."},
- {id:"md_falafel_home",n:"Falafel Bowl (Home)",e:"🥗",c:"mod",s:true,p:["Falafel","Veg","Lemon"],t:"Home sauces keep sodium controlled."},
-];
-
-// Compare cards
-const COMPARES=[
- {id:"cmp_beans",a:{name:"Canned beans (regular)",sub:"~400 mg/serving",mg:400}, b:{name:"Beans (no-salt-added)",sub:"~10 mg/serving",mg:10}, teach:"No-salt-added is a huge win. Rinse regular beans to reduce sodium."},
- {id:"cmp_tomatoes",a:{name:"Canned tomatoes (regular)",sub:"~300 mg/serving",mg:300}, b:{name:"No-salt-added tomatoes",sub:"~15 mg/serving",mg:15}, teach:"Same food, totally different sodium. ‘No-salt-added’ is your friend."},
- {id:"cmp_broth",a:{name:"Regular broth",sub:"~800 mg/cup",mg:800}, b:{name:"Low-sodium broth",sub:"~140 mg/cup",mg:140}, teach:"Broth is one of the sneakiest sodium sources. Low-sodium is a big upgrade."},
- {id:"cmp_burger",a:{name:"Fast-food burger combo",sub:"~1500 mg",mg:1500}, b:{name:"Home burger + oven fries",sub:"~650 mg",mg:650}, teach:"Same vibe, different sodium. Home prep lowers the ceiling."},
- {id:"cmp_soy",a:{name:"Regular soy sauce",sub:"~900 mg/Tbsp",mg:900}, b:{name:"Low-sodium soy sauce",sub:"~500 mg/Tbsp",mg:500}, teach:"‘Low-sodium’ helps—but it’s still salty. Use lightly."},
- {id:"cmp_tuna",a:{name:"Canned tuna (regular)",sub:"~300 mg",mg:300}, b:{name:"Canned tuna (low sodium)",sub:"~60 mg",mg:60}, teach:"Protein swaps like this add up over a week."},
- {id:"cmp_soup",a:{name:"Canned soup",sub:"~900 mg/cup",mg:900}, b:{name:"Low-sodium soup",sub:"~350 mg/cup",mg:350}, teach:"Low-sodium versions are often ‘moderate’—still check labels."},
-];
-
-// ================= GAME =================
-const stack=document.getElementById("stack");
-const toast=document.getElementById("toast");
-const modal=document.getElementById("modal");
-const panel=document.getElementById("panel");
-const btnL=document.getElementById("btnL");
-const btnU=document.getElementById("btnU");
-const btnR=document.getElementById("btnR");
-
-function shuffle(a){return [...a].sort(()=>Math.random()-.5);}
-
-function pickFoods(n){
- let pool=FOODS.filter(f=>!usedFood.has(f.id));
- if(pool.length<n) pool=FOODS;
- return shuffle(pool).slice(0,n).map(f=>{usedFood.add(f.id); return {type:"food",...f};});
-}
-function pickMeals(nMeals){
- let pool=MEALS.filter(m=>!usedMeal.has(m.id));
- if(pool.length<nMeals) pool=MEALS;
- const smartPool=pool.filter(m=>m.s);
- const otherPool=pool.filter(m=>!m.s);
- const smart=shuffle(smartPool).slice(0,1);
- const others=shuffle(otherPool).slice(0,nMeals-1);
- [...smart,...others].forEach(m=>usedMeal.add(m.id));
- return [...smart.map(m=>({type:"meal",...m})),...others.map(m=>({type:"meal",...m}))];
-}
-function pickCompares(n){
- let pool=COMPARES.filter(x=>!usedCompare.has(x.id));
- if(pool.length<n) pool=COMPARES;
- return shuffle(pool).slice(0,n).map(x=>{usedCompare.add(x.id); return {type:"compare",...x};});
-}
-
-let round=[];
-
-function buildRoundForLevel(lv){
- const nCompare=DIFF[lv].compare;
- const nFoods = nCompare ? (7 - nCompare) : 7;
- return shuffle([...pickFoods(nFoods), ...pickMeals(3), ...(nCompare?pickCompares(nCompare):[])]).slice(0,10);
-}
-
-function setControlsFor(card){
- if(card.type==="compare"){
-   btnL.textContent="⬅ Pick Left";
-   btnU.textContent="⬆ Tie";
-   btnR.textContent="Pick Right ➡";
- } else {
-   btnL.textContent="⬅ High";
-   btnU.textContent="⬆ Moderate";
-   btnR.textContent="Low ➡";
- }
-}
-
-function render(){
- stack.innerHTML=""; toast.style.display="none";
- const c=round[idx];
- document.getElementById("level").textContent=level;
- document.getElementById("rank").textContent=RANKS[level-1];
- document.getElementById("cardN").textContent=idx+1;
- document.getElementById("prog").style.width=(idx/10*100)+"%";
- setControlsFor(c);
-
- const el=document.createElement("div");
- el.className="card";
- if(c.type==="compare"){
-   el.innerHTML=`
-    <div class="badges">
-      <div class="badge modeTag">COMPARE MODE</div>
-      <div class="badge">BRANDS / LABELS</div>
-    </div>
-    <div class="visual">
-      <div class="emoji">🆚</div>
-      <div class="name">Which is LOWER sodium?</div>
-      <div class="prompt">Swipe left/right to choose • Swipe up if about the same</div>
-      <div class="compareGrid">
-        <div class="compareBox">
-          <div class="compareTitle">${c.a.name}</div>
-          <div class="compareSub">${c.a.sub}</div>
-        </div>
-        <div class="compareBox">
-          <div class="compareTitle">${c.b.name}</div>
-          <div class="compareSub">${c.b.sub}</div>
-        </div>
+<div class="safeCover" id="safeCover" aria-hidden="true"></div>
+<div class="shell">
+  <main class="app" id="app">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden="true">🧂</div>
+        <div class="title"><h1>Salt Whisperer</h1><p id="subtitle">Sodium game</p></div>
       </div>
-    </div>`;
- } else {
-   el.innerHTML=`
-    <div class="badges">
-      <div class="badge">${c.type}</div>
-      ${c.s?'<div class="badge smart">SMART</div>':''}
+      <button class="pillDark pillBtn" id="profilePill" hidden aria-label="Change profile in settings"></button>
+    </header>
+
+    <div class="topBars" id="topBar" hidden>
+      <button class="iconBtn" id="homeBtn" aria-label="Back to menu">⌂ Menu</button>
+      <div class="progress" id="progWrap" role="progressbar" aria-label="Progress" aria-valuemin="0" aria-valuemax="10" aria-valuenow="0"><div id="prog"></div></div>
+      <span class="pillDark" id="timeChip" hidden>60s</span>
+      <span class="comboChip" id="comboChip" aria-live="off"><span id="shaker" aria-hidden="true">🧂</span><b id="comboTxt">x1</b></span>
+      <span class="pillDark" id="ptsPill"><b id="ptsTxt">0</b> pts</span>
     </div>
-    <div class="visual">
-      <div class="emoji">${c.e}</div>
-      <div class="name">${c.n}</div>
-      <div class="prompt">What’s the sodium level?</div>
-    </div>
-    ${c.p?'<div class="parts">'+c.p.map(x=>'<div class="part">'+x+'</div>').join("")+'</div>':""}`;
- }
- stack.appendChild(el);
- enableSwipe(el);
-}
 
-// smoother: transform only during drag; no opacity updates; rAF
-function enableSwipe(cardEl){
- let sx=0, sy=0, dx=0, dy=0, dragging=false;
- let pending=false;
+    <section class="screen" id="homeScreen" aria-label="Menu"></section>
 
- function apply(){
-   pending=false;
-   const rot = dx/30;
-   cardEl.style.transform = `translate3d(${dx}px,${dy}px,0) rotate(${rot}deg)`;
- }
- function schedule(){ if(pending) return; pending=true; requestAnimationFrame(apply); }
+    <section class="screen" id="gameScreen" hidden aria-label="Swipe game">
+      <div class="stack" id="stack"></div>
+      <div class="controls" id="controls">
+        <button class="btnHigh" id="highBtn">⬅ High<small>swipe left</small></button>
+        <button class="btnMod" id="modBtn">⬆ Moderate<small>swipe up</small></button>
+        <button class="btnLow" id="lowBtn">Low ➡<small>swipe right</small></button>
+      </div>
+      <div class="toast" id="toast" hidden></div>
+    </section>
 
- cardEl.onpointerdown = e => {
-   if(busy) return;
-   ensureAudio(); // unlock sound on swipe
-   dragging=true; sx=e.clientX; sy=e.clientY; dx=0; dy=0;
-   cardEl.classList.add("dragging");
-   cardEl.setPointerCapture(e.pointerId);
- };
- cardEl.onpointermove = e => {
-   if(!dragging) return;
-   dx=e.clientX-sx; dy=e.clientY-sy;
-   schedule();
- };
- cardEl.onpointerup = e => {
-   if(!dragging) return;
-   dragging=false;
-   cardEl.classList.remove("dragging");
+    <section class="screen" id="modeScreen" hidden aria-label="Game"><div id="modeBox"></div><div class="toast" id="modeToast" hidden></div></section>
+    <section class="screen" id="infoScreen" hidden aria-label="Info"></section>
 
-   const horiz = Math.abs(dx) > Math.abs(dy);
-   const doLeft = horiz && dx<-120;
-   const doRight = horiz && dx>120;
-   const doUp = !horiz && dy<-120;
+    <div class="sr-only" aria-live="polite" id="live"></div>
+    <div class="footer" id="footer"></div>
+  </main>
+</div>
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="panel" id="panel"></div></div>
+<div class="fx" id="fx" aria-hidden="true"></div>
+<div class="fx" id="confetti" aria-hidden="true"></div>
 
-   if(doLeft || doRight || doUp){
-     const w=Math.max(window.innerWidth, 800);
-     const h=Math.max(window.innerHeight, 900);
-     const offX = doLeft ? -w : (doRight ? w : dx);
-     const offY = doUp ? -h : dy;
-     cardEl.style.transform = `translate3d(${offX}px,${offY}px,0) rotate(${dx/24}deg)`;
-
-     const c=round[idx];
-     if(c.type==="compare"){
-       if(doLeft) answer("A");
-       else if(doRight) answer("B");
-       else answer("TIE");
-     } else {
-       if(doLeft) answer("high");
-       else if(doRight) answer("low");
-       else answer("mod");
-     }
-   } else {
-     dx=0; dy=0;
-     cardEl.style.transform = "translate3d(0,0,0) rotate(0deg)";
-   }
- };
- cardEl.onpointercancel = () => {
-   dragging=false;
-   cardEl.classList.remove("dragging");
-   cardEl.style.transform = "translate3d(0,0,0) rotate(0deg)";
- };
-}
-
-function compareCorrect(c, choice){
- const diff=Math.abs(c.a.mg - c.b.mg);
- const tie = diff<=50 || diff<=Math.min(c.a.mg,c.b.mg)*0.10;
- if(choice==="TIE") return tie;
- const lower = c.a.mg < c.b.mg ? "A" : "B";
- return choice===lower && !tie;
-}
-
-function feedback(ok, c){
- toast.style.display="block";
- if(ok){beep("good");haptic(18);} else {beep("bad");haptic(35);}
- const headline = ok ? "✅ Correct" : "❌ Not quite";
- const teach = c.type==="compare" ? c.teach : c.t;
- const pep = ok
-   ? (c.s ? "That’s a repeatable win. 👏" : "Nice catch. Sodium spotted. 🕵️")
-   : (c.type==="compare" ? "Close. Labels + brands are the whole game. Keep going." : (c.s ? "Not quite — but this is actually a good meal 👍" : "Classic sodium trap. You’ll nail it next time."));
- toast.innerHTML = `<b>${headline}</b><br/>${teach}<br/><i>${pep}</i>`;
-}
-
-function answer(choice){
- if(busy) return;
- ensureAudio(); // unlock sound on button press too
- busy=true;
-
- const c=round[idx];
- const ok = c.type==="compare" ? compareCorrect(c,choice) : (choice===c.c);
- if(ok) correct++;
- feedback(ok,c);
-
- setTimeout(()=>{
-   idx++; busy=false;
-   if(idx>=10) endLevel();
-   else render();
- }, FEEDBACK_MS);
-}
-
-function endLevel(){
- modal.style.display="flex";
- const passed = correct>=PASS;
- if(level===5){
-   panel.innerHTML = `
-     <h2>🎉 Guru Achieved</h2>
-     <p>You completed all 5 levels.</p>
-     <div class="kv">
-       <div><b>Final Level</b>${correct}/10 correct</div>
-       <div><b>Skill</b>Real-world sodium instincts</div>
-     </div>
-     <p class="small">Tip: “No-salt-added” and “Low-sodium” help—but always verify the label.</p>
-     <button onclick="restart()">Play Again</button>
-   `;
- } else {
-   panel.innerHTML = `
-     <h2>${passed ? "Level Up 🎉" : "Try Again 🔁"}</h2>
-     <p>Score: <b>${correct}/10</b></p>
-     <p>${passed ? "Welcome to <b>"+RANKS[level]+"</b>." : "You’re close — run it back."}</p>
-     <button onclick="next(${passed})">${passed ? "Next Level" : "Retry"}</button>
-   `;
- }
-}
-
-function next(passed){ modal.style.display="none"; if(passed) level++; start(); }
-function restart(){ modal.style.display="none"; level=1; usedFood.clear(); usedMeal.clear(); usedCompare.clear(); start(); }
-function start(){ round=buildRoundForLevel(level); idx=0; correct=0; render(); }
-
-// Settings modal (not on top)
-function openSettings(){
- modal.style.display="flex";
- panel.innerHTML = `
-   <h2>Settings</h2>
-   <p class="small">Sound works after your first tap/swipe. Haptics depend on device/browser.</p>
-   <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
-     <button onclick="toggleSound()">${soundOn?"🔊 Sound: ON":"🔇 Sound: OFF"}</button>
-     <button onclick="toggleHaptic()">${hapticOn?"📳 Haptics: ON":"📴 Haptics: OFF"}</button>
-   </div>
-   <button onclick="closeSettings()">Close</button>
- `;
-}
-function closeSettings(){ modal.style.display="none"; }
-function toggleSound(){ soundOn=!soundOn; openSettings(); }
-function toggleHaptic(){ hapticOn=!hapticOn; openSettings(); }
-
-start();
-</script>
+<script src="content.js"></script>
+<script src="game.js"></script>
 </body>
 </html>
