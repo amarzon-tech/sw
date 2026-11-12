@@ -10,7 +10,9 @@
  --high:#dc2626;--mod:#f59e0b;--low:#16a34a;--smart:#22c55e;
  --radius:26px;--shadow:0 18px 50px rgba(0,0,0,.35);
 }
-body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto;background:linear-gradient(135deg,var(--bgA),var(--bgB));color:#e5e7eb;overflow:hidden}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto;background:linear-gradient(135deg,var(--bgA),var(--bgB));color:#e5e7eb;overflow:auto;min-height:100dvh}
+.app{overflow:hidden;height:100dvh}
 .app{max-width:560px;margin:auto;height:100dvh;display:flex;flex-direction:column;padding:14px;gap:10px}
 header{display:flex;justify-content:space-between;align-items:flex-start}
 .logo{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,#60a5fa,#a78bfa);display:grid;place-items:center;font-weight:900;font-size:20px}
@@ -52,7 +54,7 @@ h1{margin:0;font-size:20px}
 .compareSub{font-size:12px;color:#475569;margin-top:4px}
 
 .controls{display:flex;gap:10px}
-button{flex:1;border:0;border-radius:999px;padding:16px;font-weight:900;font-size:15px}
+button{border:0;border-radius:999px;padding:16px;font-weight:900;font-size:15px}
 .high{background:rgba(220,38,38,.15);color:#fecaca}
 .mod{background:rgba(245,158,11,.15);color:#fde68a}
 .low{background:rgba(22,163,74,.15);color:#bbf7d0}
@@ -69,23 +71,188 @@ button{flex:1;border:0;border-radius:999px;padding:16px;font-weight:900;font-siz
 .kv{display:flex;justify-content:space-between;gap:12px;margin-top:6px;text-align:left}
 .kv div{flex:1;background:rgba(255,255,255,.06);border-radius:14px;padding:10px}
 .kv b{display:block;margin-bottom:4px}
+
+/* --- replay + photos (v replay-pics) --- */
+.app{position:relative}
+button{cursor:pointer}
+.controls button{flex:1;border:0;border-radius:999px;padding:16px;font-weight:900;font-size:15px;min-height:48px}
+.panel button{flex:0 1 auto;border:0;border-radius:999px;padding:12px 18px;font-weight:900;font-size:15px;min-height:44px;margin:8px 6px 0;background:linear-gradient(135deg,#60a5fa,#a78bfa);color:#fff}
+.panel button.secondary{background:rgba(255,255,255,.12);color:#e5e7eb}
+.panel .btnRow{display:flex;flex-wrap:wrap;justify-content:center;gap:0}
+.name{font-size:clamp(22px,6.2vw,32px);font-weight:900;line-height:1.15;letter-spacing:-.02em}
+.visual{gap:8px;min-height:0}
+.photoWrap{
+  width:100%;max-width:440px;margin:0 auto;border-radius:20px;overflow:hidden;
+  background:#e2e8f0;aspect-ratio:4/3;max-height:34vh;position:relative;flex:1 1 auto;min-height:100px;
+}
+.photoWrap img{width:100%;height:100%;object-fit:cover;display:block}
+.photoWrap .emojiFallback{display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:72px;background:#f1f5f9}
+.photoWrap.img-error .emojiFallback{display:flex}
+.photoWrap.img-error img{display:none}
+.card.has-parts .photoWrap{max-height:22vh;min-height:80px}
+.compareGrid{margin-top:4px;gap:8px}
+.compareBox{padding:8px 8px 10px;display:flex;flex-direction:column;align-items:center;min-width:0}
+.compareBox .photoWrap{aspect-ratio:1;max-height:16vh;min-height:72px;border-radius:14px;margin:0 0 6px;max-width:100%}
+.compareTitle{font-weight:900;font-size:14px;line-height:1.2}
+.compareSub{font-size:11px;color:#475569;margin-top:3px}
+.parts{margin-top:6px}
+.part{padding:7px 12px;margin-bottom:5px;font-size:14px}
+.toast{position:absolute;left:14px;right:14px;bottom:78px;z-index:5;display:none}
+.footerRow{margin-top:0}
+header{gap:8px}
+.hud{font-size:12px;line-height:1.35}
+.homeBtn{
+  border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.06);
+  color:#e5e7eb;border-radius:999px;padding:8px 12px;font-weight:900;font-size:13px;
+  min-height:44px;min-width:44px;cursor:pointer;flex:0 0 auto;
+}
+
+/* Home */
+#home{
+  max-width:560px;margin:auto;min-height:100dvh;padding:18px 16px 28px;
+  display:flex;flex-direction:column;gap:14px;box-sizing:border-box;
+}
+#home[hidden],#play[hidden]{display:none !important}
+.hero{display:flex;gap:12px;align-items:center;margin-top:6px}
+.hero .logo{width:56px;height:56px;font-size:28px;border-radius:18px}
+.hero h1{font-size:26px;letter-spacing:-.03em}
+.hero .sub{font-size:14px;opacity:.9;margin-top:2px}
+.statsGrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.statCard{
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);
+  border-radius:18px;padding:12px 10px;text-align:center;
+}
+.statCard .k{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;opacity:.75}
+.statCard .v{font-size:18px;font-weight:900;margin-top:4px;line-height:1.15}
+.statCard .s{font-size:11px;opacity:.75;margin-top:3px}
+.bestList{background:rgba(255,255,255,.06);border-radius:18px;padding:12px 14px}
+.bestList h2{margin:0 0 8px;font-size:13px;letter-spacing:.06em;text-transform:uppercase;opacity:.8;font-weight:800}
+.bestRow{display:flex;justify-content:space-between;font-size:14px;padding:4px 0}
+.bestRow b{font-weight:800}
+.modeList{display:flex;flex-direction:column;gap:10px;margin-top:2px}
+.modeBtn{
+  display:flex;flex-direction:column;align-items:flex-start;gap:2px;
+  text-align:left;border:0;border-radius:22px;padding:16px 18px;min-height:64px;
+  font-weight:900;color:#0f172a;background:#fff;box-shadow:0 10px 30px rgba(0,0,0,.25);
+  width:100%;flex:none;box-sizing:border-box;
+}
+.modeBtn .title{font-size:18px}
+.modeBtn .desc{font-size:13px;font-weight:600;color:#475569}
+.modeBtn.primary{background:linear-gradient(135deg,#60a5fa,#a78bfa);color:#fff}
+.modeBtn.primary .desc{color:rgba(255,255,255,.9)}
+.modeBtn:disabled{opacity:.48;box-shadow:none}
+.modeBtn.daily{background:linear-gradient(135deg,#fde68a,#f59e0b);color:#1c1917}
+.modeBtn.daily .desc{color:#3f3f46}
+.modeBtn.practice{background:linear-gradient(135deg,#bbf7d0,#34d399);color:#064e3b}
+.modeBtn.practice .desc{color:#065f46}
+.homeFoot{display:flex;justify-content:space-between;align-items:center;margin-top:auto;padding-top:8px;gap:10px}
+.privacyNote{font-size:12px;opacity:.75;line-height:1.4}
+.panel h2{margin:0 0 8px}
+.panel p{margin:8px 0}
+.confirmWarn{font-size:15px;line-height:1.45}
+
+@media (min-width:768px){
+  .app,#home{max-width:680px}
+  .photoWrap{max-height:38vh}
+  .card.has-parts .photoWrap{max-height:26vh}
+  .compareBox .photoWrap{max-height:18vh}
+  .name{font-size:34px}
+  .hero h1{font-size:32px}
+}
+@media (max-height:700px){
+  .photoWrap{max-height:28vh;min-height:88px}
+  .card.has-parts .photoWrap{max-height:18vh}
+  .compareBox .photoWrap{max-height:13vh;min-height:64px}
+  .app{padding:10px;gap:8px}
+  .emoji{font-size:64px}
+}
+
+
+@media (max-height:700px){
+  #home{padding:12px 14px 16px;gap:10px}
+  .hero{margin-top:0}
+  .hero .logo{width:48px;height:48px}
+  .hero h1{font-size:22px}
+  .statCard{padding:8px 8px}
+  .statCard .v{font-size:16px}
+  .modeBtn{padding:12px 16px;min-height:56px;border-radius:18px}
+  .modeBtn .title{font-size:16px}
+}
+
 </style>
 </head>
 <body>
 
-<div class="app">
+<div id="home">
+  <div class="hero">
+    <div class="logo">🧂</div>
+    <div>
+      <h1>Salt Whisperer</h1>
+      <div class="sub">Learn everyday sodium at your own pace.</div>
+    </div>
+  </div>
+
+  <div class="statsGrid">
+    <div class="statCard">
+      <div class="k">Streak</div>
+      <div class="v" id="homeStreak">—</div>
+      <div class="s" id="homeStreakSub">No streak yet</div>
+    </div>
+    <div class="statCard">
+      <div class="k">Rank</div>
+      <div class="v" id="homeRank">—</div>
+      <div class="s" id="homeRankSub">Not started</div>
+    </div>
+    <div class="statCard">
+      <div class="k">Level</div>
+      <div class="v" id="homeLevel">1/5</div>
+      <div class="s" id="homeLevelSub">Ready to play</div>
+    </div>
+  </div>
+
+  <div class="bestList">
+    <h2>Best scores</h2>
+    <div id="bestScores"></div>
+  </div>
+
+  <div class="modeList">
+    <button class="modeBtn primary" id="btnPlay" onclick="startCampaign()">
+      <span class="title" id="playTitle">Play</span>
+      <span class="desc" id="playDesc">Five levels · 10 cards each</span>
+    </button>
+    <button class="modeBtn daily" id="btnDaily" onclick="startDaily()">
+      <span class="title">Daily Challenge</span>
+      <span class="desc" id="dailyDesc">Today’s 10 cards</span>
+    </button>
+    <button class="modeBtn practice" id="btnPractice" onclick="startPractice()">
+      <span class="title">Practice the ones you missed</span>
+      <span class="desc" id="practiceDesc">No misses to practice</span>
+    </button>
+  </div>
+
+  <div class="homeFoot">
+    <div class="privacyNote">Educational only • Brands/recipes vary<br/>Your progress is saved on this device only.</div>
+    <div class="gear" onclick="openSettings('home')" style="min-height:44px;min-width:44px;display:grid;place-items:center">⚙️</div>
+  </div>
+</div>
+
+<div class="app" id="play" hidden>
 <header>
- <div style="display:flex;gap:10px">
+ <div style="display:flex;gap:10px;min-width:0">
   <div class="logo">🧂</div>
-  <div>
+  <div style="min-width:0">
     <h1>Salt Whisperer</h1>
-    <div class="sub">Difficulty ramps each level • Compare Mode starts at Level 3</div>
+    <div class="sub" id="sub">Difficulty ramps each level • Compare Mode starts at Level 3</div>
   </div>
  </div>
- <div class="hud">
-  Level <b id="level">1</b>/5<br/>
-  <span id="rank">Rookie</span><br/>
-  Card <b id="cardN">1</b>/10
+ <div style="display:flex;align-items:flex-start;gap:8px;flex-shrink:0">
+  <div class="hud">
+    <span id="hudMode">Level <b id="level">1</b>/5</span><br/>
+    <span id="rank">Rookie</span><br/>
+    Card <b id="cardN">1</b>/<span id="cardTotal">10</span>
+    <span id="hudStreak"></span>
+  </div>
+  <button class="homeBtn" type="button" onclick="requestHome()" aria-label="Home">Home</button>
  </div>
 </header>
 
@@ -101,7 +268,7 @@ button{flex:1;border:0;border-radius:999px;padding:16px;font-weight:900;font-siz
 <div class="toast" id="toast"></div>
 <div class="footerRow">
   <div class="footer">Educational only • Brands/recipes vary</div>
-  <div class="gear" onclick="openSettings()">⚙️</div>
+  <div class="gear" onclick="openSettings('play')" style="min-height:44px;min-width:44px;display:grid;place-items:center">⚙️</div>
 </div>
 </div>
 
@@ -113,6 +280,9 @@ const FEEDBACK_MS=3000, PASS=7;
 const RANKS=["Rookie","Whisperer","Specialist","Master","Guru"];
 const DIFF={1:{compare:0},2:{compare:0},3:{compare:1},4:{compare:1},5:{compare:2}};
 let level=1, idx=0, correct=0, busy=false;
+let playMode="campaign"; // campaign | daily | practice
+let settingsReturn="play";
+let pendingEnd=null;
 
 // Audio/Haptics default ON (with realistic platform caveats)
 let soundOn=true, hapticOn=true;
@@ -157,7 +327,6 @@ window.addEventListener("pointerdown", ensureAudio, {once:true});
 // ================= DATA =================
 let usedFood=new Set(), usedMeal=new Set(), usedCompare=new Set();
 
-// foods (same as v10)
 const FOODS=[
  {id:"eggs",n:"Eggs",e:"🍳",c:"low",t:"Naturally low sodium."},
  {id:"oat",n:"Oatmeal (plain)",e:"🥣",c:"low",t:"Plain oats are sodium-friendly."},
@@ -256,6 +425,198 @@ const COMPARES=[
  {id:"cmp_soup",a:{name:"Canned soup",sub:"~900 mg/cup",mg:900}, b:{name:"Low-sodium soup",sub:"~350 mg/cup",mg:350}, teach:"Low-sodium versions are often ‘moderate’—still check labels."},
 ];
 
+
+// ================= IMAGES =================
+// Compare sides reuse the matching food/meal photo when the food is the same.
+const IMG_MAP={
+  "food":{},
+  "meal":{},
+  "compareA":{
+    cmp_beans:"images/food-beans_can.webp",
+    cmp_tomatoes:"images/food-tomato_can.webp",
+    cmp_broth:"images/food-broth.webp",
+    cmp_burger:"images/meal-am_burger_combo.webp",
+    cmp_soy:"images/food-soy.webp",
+    cmp_tuna:"images/food-tuna_can.webp",
+    cmp_soup:"images/food-soup.webp"
+  },
+  "compareB":{
+    cmp_beans:"images/food-beans_nsa.webp",
+    cmp_tomatoes:"images/food-tomato_nsa.webp",
+    cmp_broth:"images/food-lowbroth.webp",
+    cmp_burger:"images/meal-am_home_burger.webp",
+    cmp_soy:"images/food-lowssoy.webp",
+    cmp_tuna:"images/food-tuna_low.webp",
+    cmp_soup:"images/food-soup_low.webp"
+  }
+};
+function foodImg(id){ return "images/food-"+id+".webp"; }
+function mealImg(id){ return "images/meal-"+id+".webp"; }
+function imgAlt(text){ return text; }
+function photoHTML(src, alt, fallbackEmoji){
+  const em = fallbackEmoji || "🍽️";
+  return `<div class="photoWrap"><img src="${src}" alt="${esc(alt)}" loading="lazy" width="640" height="480" onerror="this.parentNode.classList.add('img-error')"><div class="emojiFallback" aria-hidden="true">${em}</div></div>`;
+}
+function prefetch(src){
+  if(!src) return;
+  const im=new Image();
+  im.src=src;
+}
+function esc(s){
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;");
+}
+
+// ================= PERSISTENCE =================
+const LS_KEY="saltWhisperer.replay.v1";
+
+function defaultState(){
+  return {
+    progressLevel:1,
+    highestLevel:1,
+    guruAchieved:false,
+    bestScores:{},
+    streak:0,
+    bestStreak:0,
+    lastCompleteDate:null,
+    seenFood:[],
+    seenMeal:[],
+    seenCompare:[],
+    deckCycle:0,
+    misses:[],
+    daily:{date:null,score:null,best:null,completed:false},
+    soundOn:true,
+    hapticOn:true
+  };
+}
+let state=defaultState();
+
+function loadState(){
+  try{
+    const raw=localStorage.getItem(LS_KEY);
+    if(!raw) return;
+    const s=JSON.parse(raw);
+    state=Object.assign(defaultState(), s);
+    if(!state.bestScores || typeof state.bestScores!=="object") state.bestScores={};
+    if(!Array.isArray(state.misses)) state.misses=[];
+    if(!Array.isArray(state.seenFood)) state.seenFood=[];
+    if(!Array.isArray(state.seenMeal)) state.seenMeal=[];
+    if(!Array.isArray(state.seenCompare)) state.seenCompare=[];
+    if(!state.daily || typeof state.daily!=="object") state.daily={date:null,score:null,best:null,completed:false};
+    soundOn = state.soundOn!==false;
+    hapticOn = state.hapticOn!==false;
+  }catch(e){ state=defaultState(); }
+}
+function saveState(){
+  try{
+    state.soundOn=soundOn;
+    state.hapticOn=hapticOn;
+    localStorage.setItem(LS_KEY, JSON.stringify(state));
+  }catch(e){}
+}
+
+function localDateStr(d){
+  d = d || new Date();
+  const y=d.getFullYear();
+  const m=String(d.getMonth()+1).padStart(2,"0");
+  const day=String(d.getDate()).padStart(2,"0");
+  return y+"-"+m+"-"+day;
+}
+function formatNiceDate(dateStr){
+  const [y,m,d]=dateStr.split("-").map(Number);
+  const dt=new Date(y, m-1, d);
+  return dt.toLocaleDateString(undefined,{weekday:"long", month:"long", day:"numeric"});
+}
+function yesterdayStr(dateStr){
+  const [y,m,d]=dateStr.split("-").map(Number);
+  const dt=new Date(y, m-1, d);
+  dt.setDate(dt.getDate()-1);
+  return localDateStr(dt);
+}
+function onRoundComplete(){
+  const t=localDateStr();
+  if(state.lastCompleteDate===t){
+    // already counted today
+  }else if(state.lastCompleteDate===yesterdayStr(t)){
+    state.streak=(state.streak||0)+1;
+  }else{
+    state.streak=1;
+  }
+  if(state.streak>(state.bestStreak||0)) state.bestStreak=state.streak;
+  state.lastCompleteDate=t;
+}
+
+function missKey(type,id){ return type+":"+id; }
+function addMiss(card){
+  state.misses=state.misses.filter(m=>!(m.type===card.type && m.id===card.id));
+  state.misses.push({type:card.type,id:card.id,at:Date.now()});
+  saveState();
+}
+function dropMiss(card){
+  const before=state.misses.length;
+  state.misses=state.misses.filter(m=>!(m.type===card.type && m.id===card.id));
+  if(state.misses.length!==before) saveState();
+}
+function cardFromMiss(m){
+  if(m.type==="food"){
+    const f=FOODS.find(x=>x.id===m.id);
+    return f?{type:"food",...f}:null;
+  }
+  if(m.type==="meal"){
+    const f=MEALS.find(x=>x.id===m.id);
+    return f?{type:"meal",...f}:null;
+  }
+  if(m.type==="compare"){
+    const f=COMPARES.find(x=>x.id===m.id);
+    return f?{type:"compare",...f}:null;
+  }
+  return null;
+}
+
+function markSeen(kind,id){
+  const key = kind==="food"?"seenFood":kind==="meal"?"seenMeal":"seenCompare";
+  const arr=state[key];
+  const i=arr.indexOf(id);
+  if(i>=0) arr.splice(i,1);
+  arr.push(id);
+}
+
+// ================= SEEDED DAILY =================
+function hashStr(s){
+  let h=2166136261;
+  for(let i=0;i<s.length;i++){
+    h^=s.charCodeAt(i);
+    h=Math.imul(h,16777619);
+  }
+  return h>>>0;
+}
+function rngFrom(seed){
+  let a=seed>>>0;
+  return function(){
+    a=(a+0x6D2B79F5)>>>0;
+    let t=a;
+    t=Math.imul(t^(t>>>15), t|1);
+    t^=t+Math.imul(t^(t>>>7), t|61);
+    return ((t^(t>>>14))>>>0)/4294967296;
+  };
+}
+function seededShuffle(arr,rnd){
+  const a=arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(rnd()*(i+1));
+    const tmp=a[i]; a[i]=a[j]; a[j]=tmp;
+  }
+  return a;
+}
+function buildDailyRound(dateStr){
+  const rnd=rngFrom(hashStr("salt-whisperer-daily-v1:"+dateStr));
+  const foods=seededShuffle(FOODS,rnd).slice(0,6).map(f=>({type:"food",...f}));
+  const smart=seededShuffle(MEALS.filter(m=>m.s),rnd);
+  const other=seededShuffle(MEALS.filter(m=>!m.s),rnd);
+  const meals=[smart[0],other[0],other[1]].map(m=>({type:"meal",...m}));
+  const compares=seededShuffle(COMPARES,rnd).slice(0,1).map(x=>({type:"compare",...x}));
+  return seededShuffle([...foods,...meals,...compares],rnd);
+}
+
 // ================= GAME =================
 const stack=document.getElementById("stack");
 const toast=document.getElementById("toast");
@@ -267,241 +628,519 @@ const btnR=document.getElementById("btnR");
 
 function shuffle(a){return [...a].sort(()=>Math.random()-.5);}
 
+function rotateArr(arr,k){
+  if(!arr.length) return arr.slice();
+  const n=((k%arr.length)+arr.length)%arr.length;
+  return arr.slice(n).concat(arr.slice(0,n));
+}
+
+function pickPriority(all, seenArr, sessionUsed, n, cycle){
+  const seenSet=new Set(seenArr);
+  const unseen=rotateArr(all.filter(x=>!seenSet.has(x.id) && !sessionUsed.has(x.id)), cycle);
+  // oldest seen first (front of seenArr), excluding session-used
+  const seen=seenArr.map(id=>all.find(x=>x.id===id)).filter(Boolean).filter(x=>!sessionUsed.has(x.id));
+  let pool=unseen.concat(seen);
+  if(pool.length<n){
+    const extra=rotateArr(all.filter(x=>!pool.some(p=>p.id===x.id)), cycle);
+    pool=pool.concat(extra);
+  }
+  return pool.slice(0,n);
+}
+
 function pickFoods(n){
- let pool=FOODS.filter(f=>!usedFood.has(f.id));
- if(pool.length<n) pool=FOODS;
- return shuffle(pool).slice(0,n).map(f=>{usedFood.add(f.id); return {type:"food",...f};});
+  const picked=pickPriority(FOODS, state.seenFood, usedFood, n, state.deckCycle);
+  return picked.map(f=>{
+    usedFood.add(f.id);
+    markSeen("food",f.id);
+    return {type:"food",...f};
+  });
 }
 function pickMeals(nMeals){
- let pool=MEALS.filter(m=>!usedMeal.has(m.id));
- if(pool.length<nMeals) pool=MEALS;
- const smartPool=pool.filter(m=>m.s);
- const otherPool=pool.filter(m=>!m.s);
- const smart=shuffle(smartPool).slice(0,1);
- const others=shuffle(otherPool).slice(0,nMeals-1);
- [...smart,...others].forEach(m=>usedMeal.add(m.id));
- return [...smart.map(m=>({type:"meal",...m})),...others.map(m=>({type:"meal",...m}))];
+  // Keep the original design: include 1 "smart" meal when one is available.
+  const session=usedMeal;
+  const cycle=state.deckCycle;
+  const unusedSmart=MEALS.filter(m=>m.s && !session.has(m.id));
+  const unusedOther=MEALS.filter(m=>!m.s && !session.has(m.id));
+  const smartPick=pickPriority(MEALS.filter(m=>m.s), state.seenMeal.filter(id=>MEALS.some(m=>m.id===id && m.s)), session, 1, cycle);
+  const otherPick=pickPriority(MEALS.filter(m=>!m.s), state.seenMeal.filter(id=>MEALS.some(m=>m.id===id && !m.s)), session, Math.max(0,nMeals-1), cycle);
+  const chosen=[...smartPick.slice(0,1), ...otherPick].slice(0,nMeals);
+  // If a smart meal wasn't available, fill from any remaining
+  if(chosen.length<nMeals){
+    const fill=pickPriority(MEALS, state.seenMeal, new Set([...session,...chosen.map(m=>m.id)]), nMeals-chosen.length, cycle);
+    chosen.push(...fill);
+  }
+  chosen.forEach(m=>{ usedMeal.add(m.id); markSeen("meal",m.id); });
+  return chosen.map(m=>({type:"meal",...m}));
 }
 function pickCompares(n){
- let pool=COMPARES.filter(x=>!usedCompare.has(x.id));
- if(pool.length<n) pool=COMPARES;
- return shuffle(pool).slice(0,n).map(x=>{usedCompare.add(x.id); return {type:"compare",...x};});
+  const picked=pickPriority(COMPARES, state.seenCompare, usedCompare, n, state.deckCycle);
+  return picked.map(x=>{
+    usedCompare.add(x.id);
+    markSeen("compare",x.id);
+    return {type:"compare",...x};
+  });
 }
 
 let round=[];
 
 function buildRoundForLevel(lv){
- const nCompare=DIFF[lv].compare;
- const nFoods = nCompare ? (7 - nCompare) : 7;
- return shuffle([...pickFoods(nFoods), ...pickMeals(3), ...(nCompare?pickCompares(nCompare):[])]).slice(0,10);
+  const nCompare=DIFF[lv].compare;
+  const nFoods = nCompare ? (7 - nCompare) : 7;
+  return shuffle([...pickFoods(nFoods), ...pickMeals(3), ...(nCompare?pickCompares(nCompare):[])]).slice(0,10);
 }
 
 function setControlsFor(card){
- if(card.type==="compare"){
-   btnL.textContent="⬅ Pick Left";
-   btnU.textContent="⬆ Tie";
-   btnR.textContent="Pick Right ➡";
- } else {
-   btnL.textContent="⬅ High";
-   btnU.textContent="⬆ Moderate";
-   btnR.textContent="Low ➡";
- }
+  if(card.type==="compare"){
+    btnL.textContent="⬅ Pick Left";
+    btnU.textContent="⬆ Tie";
+    btnR.textContent="Pick Right ➡";
+  } else {
+    btnL.textContent="⬅ High";
+    btnU.textContent="⬆ Moderate";
+    btnR.textContent="Low ➡";
+  }
+}
+
+function nextImgSrc(card){
+  if(!card) return [];
+  if(card.type==="food") return [foodImg(card.id)];
+  if(card.type==="meal") return [mealImg(card.id)];
+  return [IMG_MAP.compareA[card.id], IMG_MAP.compareB[card.id]];
 }
 
 function render(){
- stack.innerHTML=""; toast.style.display="none";
- const c=round[idx];
- document.getElementById("level").textContent=level;
- document.getElementById("rank").textContent=RANKS[level-1];
- document.getElementById("cardN").textContent=idx+1;
- document.getElementById("prog").style.width=(idx/10*100)+"%";
- setControlsFor(c);
+  stack.innerHTML=""; toast.style.display="none";
+  const c=round[idx];
+  const total=round.length;
+  document.getElementById("cardN").textContent=idx+1;
+  document.getElementById("cardTotal").textContent=total;
+  document.getElementById("prog").style.width=(idx/total*100)+"%";
+  if(playMode==="campaign"){
+    document.getElementById("hudMode").innerHTML="Level <b id=\"level\">"+level+"</b>/5";
+    document.getElementById("rank").textContent=RANKS[level-1];
+    document.getElementById("sub").textContent="Difficulty ramps each level • Compare Mode starts at Level 3";
+  }else if(playMode==="daily"){
+    document.getElementById("hudMode").innerHTML="Daily Challenge";
+    document.getElementById("rank").textContent="";
+    document.getElementById("sub").textContent="Today’s 10 cards · "+formatNiceDate(localDateStr());
+  }else{
+    document.getElementById("hudMode").innerHTML="Practice";
+    document.getElementById("rank").textContent="";
+    document.getElementById("sub").textContent="Practice the ones you missed";
+  }
+  const st=state.streak||0;
+  document.getElementById("hudStreak").textContent = st?(" · "+st+"-day streak"):"";
+  setControlsFor(c);
 
- const el=document.createElement("div");
- el.className="card";
- if(c.type==="compare"){
-   el.innerHTML=`
+  const el=document.createElement("div");
+  el.className="card"+(c.p?" has-parts":"");
+  if(c.type==="compare"){
+    const srcA=IMG_MAP.compareA[c.id];
+    const srcB=IMG_MAP.compareB[c.id];
+    el.innerHTML=`
     <div class="badges">
       <div class="badge modeTag">COMPARE MODE</div>
       <div class="badge">BRANDS / LABELS</div>
     </div>
     <div class="visual">
-      <div class="emoji">🆚</div>
       <div class="name">Which is LOWER sodium?</div>
       <div class="prompt">Swipe left/right to choose • Swipe up if about the same</div>
       <div class="compareGrid">
         <div class="compareBox">
+          ${photoHTML(srcA, c.a.name, "🥫")}
           <div class="compareTitle">${c.a.name}</div>
           <div class="compareSub">${c.a.sub}</div>
         </div>
         <div class="compareBox">
+          ${photoHTML(srcB, c.b.name, "🥫")}
           <div class="compareTitle">${c.b.name}</div>
           <div class="compareSub">${c.b.sub}</div>
         </div>
       </div>
     </div>`;
- } else {
-   el.innerHTML=`
+  } else {
+    const src=c.type==="food"?foodImg(c.id):mealImg(c.id);
+    el.innerHTML=`
     <div class="badges">
       <div class="badge">${c.type}</div>
       ${c.s?'<div class="badge smart">SMART</div>':''}
     </div>
     <div class="visual">
-      <div class="emoji">${c.e}</div>
+      ${photoHTML(src, c.n, c.e)}
       <div class="name">${c.n}</div>
       <div class="prompt">What’s the sodium level?</div>
     </div>
     ${c.p?'<div class="parts">'+c.p.map(x=>'<div class="part">'+x+'</div>').join("")+'</div>':""}`;
- }
- stack.appendChild(el);
- enableSwipe(el);
+  }
+  stack.appendChild(el);
+  enableSwipe(el);
+  // Prefetch the next card so it appears instantly
+  const nxt=round[idx+1];
+  nextImgSrc(nxt).forEach(prefetch);
 }
 
 // smoother: transform only during drag; no opacity updates; rAF
 function enableSwipe(cardEl){
- let sx=0, sy=0, dx=0, dy=0, dragging=false;
- let pending=false;
+  let sx=0, sy=0, dx=0, dy=0, dragging=false;
+  let pending=false;
 
- function apply(){
-   pending=false;
-   const rot = dx/30;
-   cardEl.style.transform = `translate3d(${dx}px,${dy}px,0) rotate(${rot}deg)`;
- }
- function schedule(){ if(pending) return; pending=true; requestAnimationFrame(apply); }
+  function apply(){
+    pending=false;
+    const rot = dx/30;
+    cardEl.style.transform = `translate3d(${dx}px,${dy}px,0) rotate(${rot}deg)`;
+  }
+  function schedule(){ if(pending) return; pending=true; requestAnimationFrame(apply); }
 
- cardEl.onpointerdown = e => {
-   if(busy) return;
-   ensureAudio(); // unlock sound on swipe
-   dragging=true; sx=e.clientX; sy=e.clientY; dx=0; dy=0;
-   cardEl.classList.add("dragging");
-   cardEl.setPointerCapture(e.pointerId);
- };
- cardEl.onpointermove = e => {
-   if(!dragging) return;
-   dx=e.clientX-sx; dy=e.clientY-sy;
-   schedule();
- };
- cardEl.onpointerup = e => {
-   if(!dragging) return;
-   dragging=false;
-   cardEl.classList.remove("dragging");
+  cardEl.onpointerdown = e => {
+    if(busy) return;
+    ensureAudio(); // unlock sound on swipe
+    dragging=true; sx=e.clientX; sy=e.clientY; dx=0; dy=0;
+    cardEl.classList.add("dragging");
+    cardEl.setPointerCapture(e.pointerId);
+  };
+  cardEl.onpointermove = e => {
+    if(!dragging) return;
+    dx=e.clientX-sx; dy=e.clientY-sy;
+    schedule();
+  };
+  cardEl.onpointerup = e => {
+    if(!dragging) return;
+    dragging=false;
+    cardEl.classList.remove("dragging");
 
-   const horiz = Math.abs(dx) > Math.abs(dy);
-   const doLeft = horiz && dx<-120;
-   const doRight = horiz && dx>120;
-   const doUp = !horiz && dy<-120;
+    const horiz = Math.abs(dx) > Math.abs(dy);
+    const doLeft = horiz && dx<-120;
+    const doRight = horiz && dx>120;
+    const doUp = !horiz && dy<-120;
 
-   if(doLeft || doRight || doUp){
-     const w=Math.max(window.innerWidth, 800);
-     const h=Math.max(window.innerHeight, 900);
-     const offX = doLeft ? -w : (doRight ? w : dx);
-     const offY = doUp ? -h : dy;
-     cardEl.style.transform = `translate3d(${offX}px,${offY}px,0) rotate(${dx/24}deg)`;
+    if(doLeft || doRight || doUp){
+      const w=Math.max(window.innerWidth, 800);
+      const h=Math.max(window.innerHeight, 900);
+      const offX = doLeft ? -w : (doRight ? w : dx);
+      const offY = doUp ? -h : dy;
+      cardEl.style.transform = `translate3d(${offX}px,${offY}px,0) rotate(${dx/24}deg)`;
 
-     const c=round[idx];
-     if(c.type==="compare"){
-       if(doLeft) answer("A");
-       else if(doRight) answer("B");
-       else answer("TIE");
-     } else {
-       if(doLeft) answer("high");
-       else if(doRight) answer("low");
-       else answer("mod");
-     }
-   } else {
-     dx=0; dy=0;
-     cardEl.style.transform = "translate3d(0,0,0) rotate(0deg)";
-   }
- };
- cardEl.onpointercancel = () => {
-   dragging=false;
-   cardEl.classList.remove("dragging");
-   cardEl.style.transform = "translate3d(0,0,0) rotate(0deg)";
- };
+      const c=round[idx];
+      if(c.type==="compare"){
+        if(doLeft) answer("A");
+        else if(doRight) answer("B");
+        else answer("TIE");
+      } else {
+        if(doLeft) answer("high");
+        else if(doRight) answer("low");
+        else answer("mod");
+      }
+    } else {
+      dx=0; dy=0;
+      cardEl.style.transform = "translate3d(0,0,0) rotate(0deg)";
+    }
+  };
+  cardEl.onpointercancel = () => {
+    dragging=false;
+    cardEl.classList.remove("dragging");
+    cardEl.style.transform = "translate3d(0,0,0) rotate(0deg)";
+  };
 }
 
 function compareCorrect(c, choice){
- const diff=Math.abs(c.a.mg - c.b.mg);
- const tie = diff<=50 || diff<=Math.min(c.a.mg,c.b.mg)*0.10;
- if(choice==="TIE") return tie;
- const lower = c.a.mg < c.b.mg ? "A" : "B";
- return choice===lower && !tie;
+  const diff=Math.abs(c.a.mg - c.b.mg);
+  const tie = diff<=50 || diff<=Math.min(c.a.mg,c.b.mg)*0.10;
+  if(choice==="TIE") return tie;
+  const lower = c.a.mg < c.b.mg ? "A" : "B";
+  return choice===lower && !tie;
 }
 
 function feedback(ok, c){
- toast.style.display="block";
- if(ok){beep("good");haptic(18);} else {beep("bad");haptic(35);}
- const headline = ok ? "✅ Correct" : "❌ Not quite";
- const teach = c.type==="compare" ? c.teach : c.t;
- const pep = ok
-   ? (c.s ? "That’s a repeatable win. 👏" : "Nice catch. Sodium spotted. 🕵️")
-   : (c.type==="compare" ? "Close. Labels + brands are the whole game. Keep going." : (c.s ? "Not quite — but this is actually a good meal 👍" : "Classic sodium trap. You’ll nail it next time."));
- toast.innerHTML = `<b>${headline}</b><br/>${teach}<br/><i>${pep}</i>`;
+  toast.style.display="block";
+  if(ok){beep("good");haptic(18);} else {beep("bad");haptic(35);}
+  const headline = ok ? "✅ Correct" : "❌ Not quite";
+  const teach = c.type==="compare" ? c.teach : c.t;
+  const pep = ok
+    ? (c.s ? "That’s a repeatable win. 👏" : "Nice catch. Sodium spotted. 🕵️")
+    : (c.type==="compare" ? "Close. Labels + brands are the whole game. Keep going." : (c.s ? "Not quite — but this is actually a good meal 👍" : "Classic sodium trap. You’ll nail it next time."));
+  toast.innerHTML = `<b>${headline}</b><br/>${teach}<br/><i>${pep}</i>`;
 }
 
 function answer(choice){
- if(busy) return;
- ensureAudio(); // unlock sound on button press too
- busy=true;
+  if(busy) return;
+  ensureAudio(); // unlock sound on button press too
+  busy=true;
 
- const c=round[idx];
- const ok = c.type==="compare" ? compareCorrect(c,choice) : (choice===c.c);
- if(ok) correct++;
- feedback(ok,c);
+  const c=round[idx];
+  const ok = c.type==="compare" ? compareCorrect(c,choice) : (choice===c.c);
+  if(ok){
+    correct++;
+    dropMiss(c);
+  }else{
+    addMiss(c);
+  }
+  feedback(ok,c);
 
- setTimeout(()=>{
-   idx++; busy=false;
-   if(idx>=10) endLevel();
-   else render();
- }, FEEDBACK_MS);
+  setTimeout(()=>{
+    idx++; busy=false;
+    if(idx>=round.length) endLevel();
+    else render();
+  }, FEEDBACK_MS);
 }
 
 function endLevel(){
- modal.style.display="flex";
- const passed = correct>=PASS;
- if(level===5){
-   panel.innerHTML = `
-     <h2>🎉 Guru Achieved</h2>
-     <p>You completed all 5 levels.</p>
-     <div class="kv">
-       <div><b>Final Level</b>${correct}/10 correct</div>
-       <div><b>Skill</b>Real-world sodium instincts</div>
-     </div>
-     <p class="small">Tip: “No-salt-added” and “Low-sodium” help—but always verify the label.</p>
-     <button onclick="restart()">Play Again</button>
-   `;
- } else {
-   panel.innerHTML = `
-     <h2>${passed ? "Level Up 🎉" : "Try Again 🔁"}</h2>
-     <p>Score: <b>${correct}/10</b></p>
-     <p>${passed ? "Welcome to <b>"+RANKS[level]+"</b>." : "You’re close — run it back."}</p>
-     <button onclick="next(${passed})">${passed ? "Next Level" : "Retry"}</button>
-   `;
- }
+  toast.style.display="none";
+  modal.style.display="flex";
+  const passed = correct>=PASS;
+  const total=round.length;
+
+  if(playMode==="daily"){
+    const t=localDateStr();
+    const prevBest= (state.daily && state.daily.date===t && state.daily.best!=null) ? state.daily.best : null;
+    const best= prevBest==null ? correct : Math.max(prevBest, correct);
+    state.daily={date:t,score:correct,best:best,completed:true};
+    onRoundComplete();
+    saveState();
+    panel.innerHTML = `
+      <h2>Daily Challenge complete</h2>
+      <p>Today’s score: <b>${correct}/${total}</b></p>
+      <p class="small">Best daily: ${best}/${total}. Come back tomorrow for a new set.</p>
+      <button onclick="goHome()">Back to home</button>
+    `;
+    return;
+  }
+
+  if(playMode==="practice"){
+    onRoundComplete();
+    saveState();
+    const left=state.misses.length;
+    panel.innerHTML = left
+      ? `<h2>Practice complete</h2>
+         <p>Score: <b>${correct}/${total}</b></p>
+         <p>${left} still on your practice list.</p>
+         <div class="btnRow">
+           <button onclick="startPractice()">Practice again</button>
+           <button class="secondary" onclick="goHome()">Back to home</button>
+         </div>`
+      : `<h2>You cleared your practice list!</h2>
+         <p>Score: <b>${correct}/${total}</b></p>
+         <button onclick="goHome()">Back to home</button>`;
+    return;
+  }
+
+  // campaign
+  const prev=state.bestScores[String(level)]||0;
+  if(correct>prev) state.bestScores[String(level)]=correct;
+  if(passed){
+    state.highestLevel=Math.max(state.highestLevel||1, level===5?5:level+1);
+    if(level===5){ state.guruAchieved=true; state.progressLevel=5; }
+    else { state.progressLevel=level+1; }
+  }else{
+    state.progressLevel=level;
+    state.highestLevel=Math.max(state.highestLevel||1, level);
+  }
+  onRoundComplete();
+  saveState();
+
+  if(level===5){
+    panel.innerHTML = `
+      <h2>🎉 Guru Achieved</h2>
+      <p>You completed all 5 levels.</p>
+      <div class="kv">
+        <div><b>Final Level</b>${correct}/10 correct</div>
+        <div><b>Skill</b>Real-world sodium instincts</div>
+      </div>
+      <p class="small">Tip: “No-salt-added” and “Low-sodium” help—but always verify the label.</p>
+      <div class="btnRow">
+        <button onclick="restart()">Play Again</button>
+        <button class="secondary" onclick="goHome()">Home</button>
+      </div>
+    `;
+  } else {
+    panel.innerHTML = `
+      <h2>${passed ? "Level Up 🎉" : "Try Again 🔁"}</h2>
+      <p>Score: <b>${correct}/10</b></p>
+      <p>${passed ? "Welcome to <b>"+RANKS[level]+"</b>." : "You’re close — run it back."}</p>
+      <button onclick="next(${passed})">${passed ? "Next Level" : "Retry"}</button>
+    `;
+  }
 }
 
 function next(passed){ modal.style.display="none"; if(passed) level++; start(); }
-function restart(){ modal.style.display="none"; level=1; usedFood.clear(); usedMeal.clear(); usedCompare.clear(); start(); }
-function start(){ round=buildRoundForLevel(level); idx=0; correct=0; render(); }
+function restart(){
+  modal.style.display="none";
+  level=1;
+  state.progressLevel=1;
+  state.deckCycle=(state.deckCycle||0)+1;
+  usedFood.clear(); usedMeal.clear(); usedCompare.clear();
+  // Do not clear persistent seen lists — Play Again prioritizes unseen cards
+  // and rotates decks so it is not just a reshuffle of the same set.
+  saveState();
+  playMode="campaign";
+  showPlay();
+  start();
+}
+function start(){ saveState(); round=buildRoundForLevel(level); idx=0; correct=0; render(); }
+
+function showPlay(){
+  document.getElementById("home").hidden=true;
+  document.getElementById("play").hidden=false;
+}
+function goHome(){
+  modal.style.display="none";
+  busy=false;
+  document.getElementById("play").hidden=true;
+  document.getElementById("home").hidden=false;
+  renderHome();
+}
+function requestHome(){
+  if(busy) return;
+  if(idx===0 && correct===0){
+    goHome();
+    return;
+  }
+  modal.style.display="flex";
+  panel.innerHTML = `
+    <h2>Leave this run?</h2>
+    <p class="confirmWarn">Your level is saved, but this run’s cards will be lost.</p>
+    <div class="btnRow">
+      <button onclick="goHome()">Leave</button>
+      <button class="secondary" onclick="closeLeaveConfirm()">Stay</button>
+    </div>
+  `;
+}
+function closeLeaveConfirm(){ modal.style.display="none"; }
+
+function startCampaign(){
+  playMode="campaign";
+  if(state.guruAchieved && state.progressLevel===5 && (state.bestScores["5"]>=PASS)){
+    // Finished the campaign — Play Again from home uses a fresh rotated deck
+    level=1;
+    state.progressLevel=1;
+    state.deckCycle=(state.deckCycle||0)+1;
+    usedFood.clear(); usedMeal.clear(); usedCompare.clear();
+    saveState();
+  }else{
+    level=state.progressLevel||1;
+  }
+  showPlay();
+  start();
+}
+function startDaily(){
+  playMode="daily";
+  const t=localDateStr();
+  if(!state.daily || state.daily.date!==t){
+    state.daily={date:t,score:null,best:state.daily&&state.daily.best,completed:false};
+    saveState();
+  }
+  round=buildDailyRound(t);
+  idx=0; correct=0;
+  showPlay();
+  render();
+}
+function startPractice(){
+  const cards=state.misses.map(cardFromMiss).filter(Boolean);
+  if(!cards.length){
+    renderHome();
+    return;
+  }
+  playMode="practice";
+  // Up to 10, most recently missed first, unique already
+  const list=cards.slice(-10).reverse();
+  round=list;
+  idx=0; correct=0;
+  showPlay();
+  render();
+}
+
+function renderHome(){
+  const t=localDateStr();
+  const st=state.streak||0;
+  document.getElementById("homeStreak").textContent = st? (st+""): "—";
+  document.getElementById("homeStreakSub").textContent = st? (st+"-day streak"+(state.bestStreak? " · Best: "+state.bestStreak:"")) : "No streak yet";
+
+  const high=state.highestLevel||1;
+  const rankIdx=Math.max(0, Math.min(RANKS.length-1, (state.guruAchieved?5:high)-1));
+  document.getElementById("homeRank").textContent = (state.highestLevel>1 || state.guruAchieved || Object.keys(state.bestScores).length)? RANKS[rankIdx] : "—";
+  document.getElementById("homeRankSub").textContent = (state.highestLevel>1 || state.guruAchieved || Object.keys(state.bestScores).length)? "Highest rank" : "Not started";
+
+  document.getElementById("homeLevel").textContent = (state.progressLevel||1)+"/5";
+  document.getElementById("homeLevelSub").textContent = state.guruAchieved? "Guru achieved" : ((state.progressLevel||1)>1? "On Level "+state.progressLevel : "Ready to play");
+
+  const rows=RANKS.map((r,i)=>{
+    const n=i+1;
+    const sc=state.bestScores[String(n)];
+    const val= sc==null ? "—" : (sc+"/10");
+    return `<div class="bestRow"><span>Level ${n} · ${r}</span><b>${val}</b></div>`;
+  }).join("");
+  document.getElementById("bestScores").innerHTML=rows;
+
+  const finished=!!state.guruAchieved;
+  const mid=(state.progressLevel||1)>1 && !finished;
+  document.getElementById("playTitle").textContent = finished? "Play Again" : (mid? "Continue · Level "+state.progressLevel : "Play");
+  document.getElementById("playDesc").textContent = finished
+    ? "A new mix — unseen cards first"
+    : (mid? "Pick up at Level "+state.progressLevel : "Five levels · 10 cards each");
+
+  const daily=state.daily||{};
+  const same=daily.date===t;
+  if(same && daily.completed){
+    document.getElementById("dailyDesc").textContent="Completed · "+daily.score+"/10 · "+formatNiceDate(t);
+  }else{
+    document.getElementById("dailyDesc").textContent="Today’s 10 cards · "+formatNiceDate(t);
+  }
+
+  const nMiss=state.misses.length;
+  const btnP=document.getElementById("btnPractice");
+  if(nMiss){
+    btnP.disabled=false;
+    document.getElementById("practiceDesc").textContent=nMiss===1? "1 card to review" : (nMiss+" cards to review");
+  }else{
+    btnP.disabled=true;
+    document.getElementById("practiceDesc").textContent="No misses to practice";
+  }
+}
 
 // Settings modal (not on top)
-function openSettings(){
- modal.style.display="flex";
- panel.innerHTML = `
-   <h2>Settings</h2>
-   <p class="small">Sound works after your first tap/swipe. Haptics depend on device/browser.</p>
-   <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
-     <button onclick="toggleSound()">${soundOn?"🔊 Sound: ON":"🔇 Sound: OFF"}</button>
-     <button onclick="toggleHaptic()">${hapticOn?"📳 Haptics: ON":"📴 Haptics: OFF"}</button>
-   </div>
-   <button onclick="closeSettings()">Close</button>
- `;
+function openSettings(from){
+  settingsReturn=from||"play";
+  modal.style.display="flex";
+  panel.innerHTML = `
+    <h2>Settings</h2>
+    <p class="small">Sound works after your first tap/swipe. Haptics depend on device/browser.</p>
+    <p class="small">Your progress is saved on this device only.</p>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+      <button onclick="toggleSound()">${soundOn?"🔊 Sound: ON":"🔇 Sound: OFF"}</button>
+      <button onclick="toggleHaptic()">${hapticOn?"📳 Haptics: ON":"📴 Haptics: OFF"}</button>
+    </div>
+    <button class="secondary" onclick="closeSettings()">Close</button>
+  `;
 }
 function closeSettings(){ modal.style.display="none"; }
-function toggleSound(){ soundOn=!soundOn; openSettings(); }
-function toggleHaptic(){ hapticOn=!hapticOn; openSettings(); }
+function toggleSound(){ soundOn=!soundOn; saveState(); openSettings(settingsReturn); }
+function toggleHaptic(){ hapticOn=!hapticOn; saveState(); openSettings(settingsReturn); }
 
-start();
+// Service worker — offline cache, including photos
+if("serviceWorker" in navigator){
+  window.addEventListener("load", ()=>{
+    navigator.serviceWorker.register("sw.js").catch(()=>{});
+  });
+}
+
+// Test hooks (used by headless verification; not shown in the UI)
+window.__SW__={
+  buildDailyRound, localDateStr, hashStr, loadState, saveState,
+  getState(){ return state; },
+  setState(s){ state=Object.assign(defaultState(),s); saveState(); },
+  FOODS, MEALS, COMPARES, RANKS, IMG_MAP, foodImg, mealImg,
+  getRound(){ return round; },
+  getMode(){ return playMode; },
+  showCard(card){
+    playMode="practice";
+    round=[card];
+    idx=0; correct=0; busy=false;
+    showPlay();
+    render();
+  }
+};
+
+loadState();
+renderHome();
 </script>
 </body>
 </html>
