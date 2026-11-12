@@ -217,7 +217,7 @@ header{gap:8px}
 
   <div class="modeList">
     <button class="modeBtn primary" id="btnPlay" onclick="startCampaign()">
-      <span class="title" id="playTitle">Play</span>
+      <span class="title" id="playTitle">Let's play! 🧂</span>
       <span class="desc" id="playDesc">Five levels · 10 cards each</span>
     </button>
     <button class="modeBtn daily" id="btnDaily" onclick="startDaily()">
@@ -1072,7 +1072,7 @@ function renderHome(){
 
   const finished=!!state.guruAchieved;
   const mid=(state.progressLevel||1)>1 && !finished;
-  document.getElementById("playTitle").textContent = finished? "Play Again" : (mid? "Continue · Level "+state.progressLevel : "Play");
+  document.getElementById("playTitle").textContent = finished? "Play Again" : (mid? "Continue · Level "+state.progressLevel : "Let's play! 🧂");
   document.getElementById("playDesc").textContent = finished
     ? "A new mix — unseen cards first"
     : (mid? "Pick up at Level "+state.progressLevel : "Five levels · 10 cards each");

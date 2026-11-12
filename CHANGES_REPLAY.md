@@ -23,7 +23,7 @@ DRAFT: this branch is not merged or deployed. It is for review only.
 - “Best scores”
 - “Level {n} · {rank}” (best-score rows; rank names Rookie / Whisperer / Specialist / Master / Guru are unchanged)
 - “—” (empty score or empty streak placeholder)
-- “Play”
+- “Let's play! 🧂” (main start button for new players; was “Play”. “Continue · Level {n}” and “Play Again” for returning players are unchanged.)
 - “Five levels · 10 cards each”
 - “Continue · Level {n}”
 - “Pick up at Level {n}”
